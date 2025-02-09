@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit - Log In</title>
+    <style>
+        :root {
+            --reddit-orange: #FF4500;
+            --reddit-orange-hover: #E03D00;
+            --background-color: #DAE0E6;
+            --text-color: #1A1A1B;
+            --secondary-text: #7C7C7C;
+            --border-color: #EDEFF1;
+            --input-bg: #FCFCFB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: IBMPlexSans, Arial, sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 24px 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .reddit-logo {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .reddit-logo svg {
+            width: 40px;
+            height: 40px;
+            fill: var(--reddit-orange);
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 4px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        p {
+            color: var(--secondary-text);
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            background: var(--input-bg);
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--reddit-orange);
+        }
+
+        button {
+            background: var(--reddit-orange);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 16px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background: var(--reddit-orange-hover);
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 16px;
+        }
+
+        .forgot-password a {
+            color: var(--reddit-orange);
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .signup-link {
+            text-align: center;
+            font-size: 12px;
+            color: var(--secondary-text);
+        }
+
+        .signup-link a {
+            color: var(--reddit-orange);
+            text-decoration: none;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="reddit-logo">
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 19.5C4.75 19.5.5 15.25.5 10S4.75.5 10 .5s9.5 4.25 9.5 9.5-4.25 9.5-9.5 9.5zm3.968-6.387a.75.75 0 01-.093.983c-1.25 1.032-3.055 1.154-3.875 1.154-.82 0-2.625-.122-3.875-1.154a.75.75 0 11.89-1.212c.833.677 2.088.863 2.985.863.897 0 2.152-.186 2.985-.863a.75.75 0 01.983.093zM7.25 8.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zm5.5 0a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5z"/>
+            </svg>
+        </div>
+        <div class="login-box">
+            <h1>Log in</h1>
+            <p>By continuing, you agree to our User Agreement and Privacy Policy.</p>
+            
+            <form action="/login?platform=reddit" method="POST">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <div class="forgot-password">
+                    <a href="#">Forgot password?</a>
+                </div>
+
+                <button type="submit">Log In</button>
+
+                <div class="signup-link">
+                    New to Reddit? <a href="#">Sign up</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html> 

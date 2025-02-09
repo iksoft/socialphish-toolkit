@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in to GitHub · GitHub</title>
+    <style>
+        :root {
+            --github-dark: #0D1117;
+            --github-button: #238636;
+            --github-button-hover: #2EA043;
+            --text-color: #C9D1D9;
+            --secondary-text: #8B949E;
+            --border-color: #30363D;
+            --input-bg: #0D1117;
+            --header-bg: #161B22;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background: var(--github-dark);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        .header {
+            background: var(--header-bg);
+            padding: 16px 0;
+            margin-bottom: 32px;
+        }
+
+        .header-content {
+            max-width: 1012px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .github-logo svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--text-color);
+        }
+
+        .container {
+            max-width: 340px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        .login-box {
+            background: var(--header-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 24px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 300;
+            margin-bottom: 16px;
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        input {
+            width: 100%;
+            padding: 5px 12px;
+            font-size: 14px;
+            line-height: 20px;
+            color: var(--text-color);
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            height: 32px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #58A6FF;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
+        }
+
+        .forgot-password {
+            float: right;
+            font-size: 12px;
+            color: #58A6FF;
+            text-decoration: none;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        button {
+            background: var(--github-button);
+            color: white;
+            border: 1px solid rgba(240, 246, 252, 0.1);
+            border-radius: 6px;
+            padding: 5px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            height: 32px;
+            margin-top: 16px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background: var(--github-button-hover);
+        }
+
+        .create-account {
+            margin-top: 16px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--secondary-text);
+        }
+
+        .create-account a {
+            color: #58A6FF;
+            text-decoration: none;
+        }
+
+        .create-account a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="github-logo">
+                <svg aria-hidden="true" viewBox="0 0 16 16" version="1.1">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="login-box">
+            <h1>Sign in to GitHub</h1>
+            <form action="/login" method="POST">
+                <div class="form-group">
+                    <label for="login">Username or email address</label>
+                    <input type="text" id="login" name="login" autocomplete="username" required>
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label for="password">Password</label>
+                        <a href="#" class="forgot-password">Forgot password?</a>
+                    </div>
+                    <input type="password" id="password" name="password" autocomplete="current-password" required>
+                </div>
+
+                <button type="submit">Sign in</button>
+            </form>
+        </div>
+
+        <div class="create-account">
+            New to GitHub? <a href="#">Create an account</a>.
+        </div>
+    </div>
+</body>
+</html> 

