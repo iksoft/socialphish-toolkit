@@ -441,30 +441,30 @@ Password: {password}
             
             # Windows-specific cleanup
             if platform_module.system() == "Windows":
-            cleanup_commands = [
-                    'taskkill /F /IM cloudflared.exe 2>nul',
-                    'del /F /Q "%USERPROFILE%\\.cloudflared\\config.yml" 2>nul'
-                ]
-                for cmd in cleanup_commands:
-                    try:
-                        subprocess.run(cmd, shell=True, stderr=subprocess.DEVNULL)
-                    except Exception:
-                        pass
-            else:
-                # Unix cleanup
-                cleanup_commands = [
-                    ['pkill', '-9', 'cloudflared'],
-                    ['killall', '-9', 'cloudflared'],
-                    ['rm', '-f', '/tmp/.cloudflared.lock'],
-                    ['rm', '-f', '~/.cloudflared/config.yml']
-                ]
-            for cmd in cleanup_commands:
                 try:
-                    subprocess.run(cmd, stderr=subprocess.DEVNULL)
-                except Exception:
-                    pass
+                    cleanup_commands = [
+                        'taskkill /F /IM cloudflared.exe 2>nul',
+                        'del /F /Q "%USERPROFILE%\\.cloudflared\\config.yml" 2>nul'
+                    ]
+                    for cmd in cleanup_commands:
+                        subprocess.run(cmd, shell=True, stderr=subprocess.DEVNULL)
+                except Exception as e:
+                    console.print(f"[yellow]Warning during Windows cleanup: {str(e)}[/yellow]")
+            else:
+                try:
+                    # Unix cleanup
+                    cleanup_commands = [
+                        ['pkill', '-9', 'cloudflared'],
+                        ['killall', '-9', 'cloudflared'],
+                        ['rm', '-f', '/tmp/.cloudflared.lock'],
+                        ['rm', '-f', '~/.cloudflared/config.yml']
+                    ]
+                    for cmd in cleanup_commands:
+                        subprocess.run(cmd, stderr=subprocess.DEVNULL)
+                except Exception as e:
+                    console.print(f"[yellow]Warning during Unix cleanup: {str(e)}[/yellow]")
             
-                time.sleep(2)
+            time.sleep(2)
             
             # Check if cloudflared is installed
             try:
@@ -479,10 +479,12 @@ Password: {password}
                         # Download Windows binary
                         console.print("[yellow]Downloading cloudflared for Windows...[/yellow]")
                         download_url = "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe"
-                        subprocess.run([
-                            'curl', '-Lo', 'cloudflared.exe',
-                            download_url
-                        ], check=True)
+                        try:
+                            import urllib.request
+                            urllib.request.urlretrieve(download_url, 'cloudflared.exe')
+                        except Exception as e:
+                            console.print(f"[red]Failed to download cloudflared: {str(e)}[/red]")
+                            return False
                         # Add current directory to PATH
                         os.environ['PATH'] = f"{os.getcwd()};{os.environ['PATH']}"
                     elif os.path.exists('/usr/bin/apt'):
@@ -499,7 +501,7 @@ Password: {password}
                         ], check=True)
                         subprocess.run(['chmod', '+x', './cloudflared'], check=True)
                         os.environ['PATH'] = f"{os.getcwd()}:{os.environ['PATH']}"
-            except Exception as e:
+                except Exception as e:
                     console.print(f"[red]Failed to install cloudflared: {str(e)}[/red]")
                     return False
             
@@ -509,7 +511,7 @@ Password: {password}
             # Use different command format for Windows
             if platform_module.system() == "Windows":
                 command = [
-                    'cloudflared.exe' if os.path.exists('cloudflared.exe') else 'cloudflared',
+                    os.path.join(os.getcwd(), 'cloudflared.exe') if os.path.exists('cloudflared.exe') else 'cloudflared',
                     'tunnel',
                     '--url', f'http://127.0.0.1:{port}',
                     '--metrics', '127.0.0.1:0',
@@ -523,18 +525,26 @@ Password: {password}
                     '--no-autoupdate'
                 ]
             
+            # Create process with appropriate flags for Windows
+            startupinfo = None
+            if platform_module.system() == "Windows":
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                startupinfo.wShowWindow = subprocess.SW_HIDE
+            
             process = subprocess.Popen(
                 command,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 universal_newlines=True,
                 bufsize=1,
+                startupinfo=startupinfo,
                 creationflags=subprocess.CREATE_NO_WINDOW if platform_module.system() == "Windows" else 0
             )
             
             # Monitor for URL
             start_time = time.time()
-            timeout = 30  # Reduced timeout
+            timeout = 30
             url_found = False
             output_buffer = []
             
@@ -546,53 +556,55 @@ Password: {password}
                     console.print(f"[red]Cloudflared process terminated unexpectedly: {error}[/red]")
                     break
                 
-                # Read both stdout and stderr
-                ready = select.select([process.stdout, process.stderr], [], [], 0.5)[0]
-                
-                for pipe in ready:
-                    line = pipe.readline().strip()
+                # Read output
+                for pipe in [process.stdout, process.stderr]:
+                    try:
+                        line = pipe.readline().strip()
                         if line:
                             output_buffer.append(line)
-                        if pipe == process.stderr and "error" in line.lower():
-                            console.print(f"[yellow]Cloudflared message: {line}[/yellow]")
-                        elif "trycloudflare.com" in line or ".trycloudflare.com" in line:
-                            # Extract URL using regex to be more robust
-                            url_match = re.search(r'https?://[^\s|\]]+\.trycloudflare\.com', line)
-                            if url_match:
-                                url = url_match.group(0)
-                                # Append platform parameter
-                                        url = f"{url}?platform={platform}"
-                                
-                                # Display success message
-                                        console.print("\n[bold green]═══════════════════════════════════════[/bold green]")
-                                console.print(f"[bold green]Tunnel URL: {url}[/bold green]")
-                                        console.print("[bold green]═══════════════════════════════════════[/bold green]\n")
-                                        
-                                # Generate QR code
-                                        self.generate_qr_code(url, platform)
-                                        
-                                        self.cloudflared_process = process
-                                        url_found = True
-                                
-                                # Display waiting message
-                                console.print("\n[bold yellow]Server is running. Waiting for victims...[/bold yellow]")
-                                console.print("[bold yellow]Press Ctrl+C to stop the server[/bold yellow]\n")
-                                                    return True
+                            if pipe == process.stderr and "error" in line.lower():
+                                console.print(f"[yellow]Cloudflared message: {line}[/yellow]")
+                            elif "trycloudflare.com" in line or ".trycloudflare.com" in line:
+                                # Extract URL using regex to be more robust
+                                url_match = re.search(r'https?://[^\s|\]]+\.trycloudflare\.com', line)
+                                if url_match:
+                                    url = url_match.group(0)
+                                    # Append platform parameter
+                                    url = f"{url}?platform={platform}"
+                                    
+                                    # Display success message
+                                    console.print("\n[bold green]═══════════════════════════════════════[/bold green]")
+                                    console.print(f"[bold green]Tunnel URL: {url}[/bold green]")
+                                    console.print("[bold green]═══════════════════════════════════════[/bold green]\n")
+                                    
+                                    # Generate QR code
+                                    self.generate_qr_code(url, platform)
+                                    
+                                    self.cloudflared_process = process
+                                    url_found = True
+                                    
+                                    # Display waiting message
+                                    console.print("\n[bold yellow]Server is running. Waiting for victims...[/bold yellow]")
+                                    console.print("[bold yellow]Press Ctrl+C to stop the server[/bold yellow]\n")
+                                    return True
+                    except Exception as e:
+                        console.print(f"[yellow]Error reading output: {str(e)}[/yellow]")
+                        continue
                 
                 time.sleep(0.1)
             
             # If we get here without finding a URL, show debug info
             if not url_found:
-            console.print("[red]Failed to establish cloudflared tunnel. Debug information:[/red]")
-            console.print("[yellow]Last few lines of output:[/yellow]")
-            for line in output_buffer[-5:]:
-                console.print(f"[dim]{line}[/dim]")
+                console.print("[red]Failed to establish cloudflared tunnel. Debug information:[/red]")
+                console.print("[yellow]Last few lines of output:[/yellow]")
+                for line in output_buffer[-5:]:
+                    console.print(f"[dim]{line}[/dim]")
             
             if process.poll() is None:
                 process.terminate()
             return False
             
-            except Exception as e:
+        except Exception as e:
             console.print(f"[red]Error in cloudflared tunnel: {str(e)}[/red]")
             if 'process' in locals() and process.poll() is None:
                 process.terminate()
@@ -626,25 +638,25 @@ Password: {password}
             
             # Windows-specific cleanup
             if platform_module.system() == "Windows":
-                cleanup_commands = [
-                    'taskkill /F /IM ngrok.exe 2>nul'
-                ]
-                for cmd in cleanup_commands:
-                    try:
+                try:
+                    cleanup_commands = [
+                        'taskkill /F /IM ngrok.exe 2>nul'
+                    ]
+                    for cmd in cleanup_commands:
                         subprocess.run(cmd, shell=True, stderr=subprocess.DEVNULL)
-                    except Exception:
-                        pass
+                except Exception as e:
+                    console.print(f"[yellow]Warning during Windows cleanup: {str(e)}[/yellow]")
             else:
-                # Unix cleanup
-                cleanup_commands = [
-                    ['pkill', '-9', 'ngrok'],
-                    ['killall', '-9', 'ngrok']
-                ]
-                for cmd in cleanup_commands:
-                    try:
+                try:
+                    # Unix cleanup
+                    cleanup_commands = [
+                        ['pkill', '-9', 'ngrok'],
+                        ['killall', '-9', 'ngrok']
+                    ]
+                    for cmd in cleanup_commands:
                         subprocess.run(cmd, stderr=subprocess.DEVNULL)
-                    except Exception:
-                        pass
+                except Exception as e:
+                    console.print(f"[yellow]Warning during Unix cleanup: {str(e)}[/yellow]")
             
             time.sleep(2)
             
@@ -652,26 +664,47 @@ Password: {password}
             if platform_module.system() == "Windows" and not os.path.exists('ngrok.exe'):
                 console.print("[yellow]Downloading ngrok for Windows...[/yellow]")
                 try:
-                    subprocess.run([
-                        'curl', '-Lo', 'ngrok.zip',
-                        'https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip'
-                    ], check=True)
-                    import zipfile
-                    with zipfile.ZipFile('ngrok.zip', 'r') as zip_ref:
-                        zip_ref.extractall('.')
-                    os.remove('ngrok.zip')
+                    # Download using urllib instead of curl
+                    import urllib.request
+                    download_url = "https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip"
+                    try:
+                        urllib.request.urlretrieve(download_url, 'ngrok.zip')
+                    except Exception as e:
+                        console.print(f"[red]Failed to download ngrok: {str(e)}[/red]")
+                        return False
+                    
+                    # Extract using zipfile
+                    try:
+                        import zipfile
+                        with zipfile.ZipFile('ngrok.zip', 'r') as zip_ref:
+                            zip_ref.extractall('.')
+                        os.remove('ngrok.zip')
+                    except Exception as e:
+                        console.print(f"[red]Failed to extract ngrok: {str(e)}[/red]")
+                        if os.path.exists('ngrok.zip'):
+                            os.remove('ngrok.zip')
+                        return False
+                    
+                    # Add current directory to PATH
                     os.environ['PATH'] = f"{os.getcwd()};{os.environ['PATH']}"
-            except Exception as e:
-                    console.print(f"[red]Failed to download ngrok: {str(e)}[/red]")
-                return False
+                except Exception as e:
+                    console.print(f"[red]Failed to setup ngrok: {str(e)}[/red]")
+                    return False
             
             # Start ngrok with improved parameters
             command = [
-                'ngrok.exe' if platform_module.system() == "Windows" else 'ngrok',
+                os.path.join(os.getcwd(), 'ngrok.exe') if platform_module.system() == "Windows" else 'ngrok',
                 'http',
-                    '--log=stdout',
-                    str(port)
+                '--log=stdout',
+                str(port)
             ]
+            
+            # Create process with appropriate flags for Windows
+            startupinfo = None
+            if platform_module.system() == "Windows":
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                startupinfo.wShowWindow = subprocess.SW_HIDE
             
             process = subprocess.Popen(
                 command,
@@ -679,17 +712,20 @@ Password: {password}
                 stderr=subprocess.PIPE,
                 universal_newlines=True,
                 bufsize=1,
+                startupinfo=startupinfo,
                 creationflags=subprocess.CREATE_NO_WINDOW if platform_module.system() == "Windows" else 0
             )
             
             # Monitor for URL
             start_time = time.time()
-            timeout = 30  # Reduced timeout
+            timeout = 30
             url_found = False
+            error_count = 0
+            max_errors = 5
             
             console.print("[yellow]Waiting for tunnel to be established...[/yellow]")
             
-            while (time.time() - start_time) < timeout and not url_found:
+            while (time.time() - start_time) < timeout and not url_found and error_count < max_errors:
                 try:
                     # Check if process is still running
                     if process.poll() is not None:
@@ -724,17 +760,28 @@ Password: {password}
                             
                 except requests.exceptions.RequestException:
                     # Read process output for potential errors
-                    output = process.stdout.readline().strip()
-                    if output:
-                        if "error" in output.lower():
-                            console.print(f"[red]Ngrok error: {output}[/red]")
-                            break
+                    try:
+                        output = process.stdout.readline().strip()
+                        if output:
+                            if "error" in output.lower():
+                                console.print(f"[red]Ngrok error: {output}[/red]")
+                                error_count += 1
+                    except Exception as e:
+                        console.print(f"[yellow]Error reading ngrok output: {str(e)}[/yellow]")
+                    time.sleep(1)
+                    continue
+                except Exception as e:
+                    console.print(f"[yellow]Error checking ngrok status: {str(e)}[/yellow]")
+                    error_count += 1
                     time.sleep(1)
                     continue
             
             # If we get here without finding a URL, cleanup and show error
             if not url_found:
-                console.print("[red]Failed to establish ngrok tunnel. Please check your internet connection and ngrok configuration.[/red]")
+                if error_count >= max_errors:
+                    console.print("[red]Too many errors occurred while trying to establish ngrok tunnel.[/red]")
+                else:
+                    console.print("[red]Failed to establish ngrok tunnel. Please check your internet connection and ngrok configuration.[/red]")
             if process.poll() is None:
                 process.terminate()
             return False
@@ -824,9 +871,9 @@ Password: {password}
     def run(self):
         """Run the social phishing module."""
         try:
-        # Load settings first
-        self.load_settings()
-        
+            # Load settings first
+            self.load_settings()
+            
             # Show platform options in a 2-row table format
             table = Table(
                 title="[bold red]Available Social Media Platforms[/bold red]",
