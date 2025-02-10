@@ -49,7 +49,7 @@ A powerful and modern social engineering toolkit with cross-platform support for
    ```
 2. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/socialphish-toolkit.git
+   git clone https://github.com/iksoft/socialphish-toolkit.git
    cd socialphish-toolkit
    ```
 3. Fix script permissions and line endings:
@@ -80,7 +80,7 @@ A powerful and modern social engineering toolkit with cross-platform support for
    ```
 2. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/socialphish-toolkit.git
+   git clone https://github.com/iksoft/socialphish-toolkit.git
    cd socialphish-toolkit
    ```
 3. Fix script permissions and line endings:
@@ -110,7 +110,7 @@ A powerful and modern social engineering toolkit with cross-platform support for
    ```
 2. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/socialphish-toolkit.git
+   git clone https://github.com/iksoft/socialphish-toolkit.git
    cd socialphish-toolkit
    ```
 3. Run the setup script:
