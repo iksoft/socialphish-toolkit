@@ -100,6 +100,66 @@ def create_launcher():
             f.write("python3 socialphish.py\n")
         os.chmod("run-socialphish.sh", 0o755)
 
+def create_update_script():
+    """Create update script for Windows."""
+    print_colored("[+] Creating update script...", "green")
+    if platform.system() == "Windows":
+        with open("update-windows.bat", "w") as f:
+            f.write("@echo off\n")
+            f.write("echo [*] SocialPhish Toolkit Updater for Windows\n")
+            f.write("echo [*] Checking for updates...\n\n")
+            f.write("REM Check if git is installed\n")
+            f.write("where git >nul 2>nul\n")
+            f.write("if %ERRORLEVEL% NEQ 0 (\n")
+            f.write("    echo [!] Git is not installed. Please install Git from https://git-scm.com/download/win\n")
+            f.write("    pause\n")
+            f.write("    exit /b 1\n")
+            f.write(")\n\n")
+            f.write("REM Check if we're in a git repository\n")
+            f.write("if not exist .git (\n")
+            f.write("    echo [!] Not in a git repository. Please run this script from the socialphish-toolkit directory.\n")
+            f.write("    pause\n")
+            f.write("    exit /b 1\n")
+            f.write(")\n\n")
+            f.write("REM Stash any local changes\n")
+            f.write("echo [*] Saving local changes...\n")
+            f.write("git stash\n\n")
+            f.write("REM Update from remote repository\n")
+            f.write("echo [*] Pulling latest updates...\n")
+            f.write("git pull origin main\n\n")
+            f.write("if %ERRORLEVEL% NEQ 0 (\n")
+            f.write("    echo [!] Failed to pull updates. Please check your internet connection.\n")
+            f.write("    git stash pop\n")
+            f.write("    pause\n")
+            f.write("    exit /b 1\n")
+            f.write(")\n\n")
+            f.write("REM Restore local changes\n")
+            f.write("echo [*] Restoring local changes...\n")
+            f.write("git stash pop\n\n")
+            f.write("REM Update Python packages\n")
+            f.write("echo [*] Updating Python packages...\n")
+            f.write("if exist venv\\Scripts\\activate.bat (\n")
+            f.write("    call venv\\Scripts\\activate.bat\n")
+            f.write("    python -m pip install --upgrade pip\n")
+            f.write("    pip install -r requirements.txt\n")
+            f.write("    deactivate\n")
+            f.write(") else (\n")
+            f.write("    echo [!] Virtual environment not found. Running setup...\n")
+            f.write("    python setup.py\n")
+            f.write(")\n\n")
+            f.write("REM Fix permissions\n")
+            f.write("echo [*] Fixing permissions...\n")
+            f.write("icacls * /reset /T >nul 2>nul\n")
+            f.write("icacls *.py /grant:r Everyone:F /T >nul 2>nul\n")
+            f.write("icacls *.bat /grant:r Everyone:F /T >nul 2>nul\n")
+            f.write("icacls templates /grant:r Everyone:F /T >nul 2>nul\n")
+            f.write("icacls modules /grant:r Everyone:F /T >nul 2>nul\n")
+            f.write("icacls output /grant:r Everyone:F /T >nul 2>nul\n\n")
+            f.write("echo [+] Update completed successfully!\n")
+            f.write("echo [*] You can now run the toolkit using run-socialphish.bat\n")
+            f.write("pause\n")
+        os.chmod("update-windows.bat", 0o755)
+
 def main():
     print_colored("[+] Setting up SocialPhish Toolkit...", "green")
     
@@ -115,10 +175,15 @@ def main():
     # Create launcher script
     create_launcher()
     
+    # Create update script
+    create_update_script()
+    
     print_colored("[+] Setup complete!", "green")
     if platform.system() == "Windows":
         print_colored("[*] To run the toolkit, simply use:", "yellow")
         print_colored("    run-socialphish.bat", "green")
+        print_colored("[*] To update the toolkit, use:", "yellow")
+        print_colored("    update-windows.bat", "green")
     else:
         print_colored("[*] To run the toolkit, simply use:", "yellow")
         print_colored("    ./run-socialphish.sh", "green")
