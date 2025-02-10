@@ -7,6 +7,12 @@ A powerful and modern social engineering toolkit with cross-platform support for
 - 🌐 Cross-platform support (Windows, Linux, macOS, Termux)
 - 🎯 Social Media Phishing Templates
 - 📱 QR Code Phishing Generator
+- 📸 Camera Phishing Templates
+  - YouTube Live Stream
+  - Google Meet
+  - Microsoft Teams
+  - Zoom
+  - Cisco WebEx
 - 🔄 Multiple Tunneling Options (Ngrok, Cloudflared)
 - 📧 Multiple Output Methods (File, Telegram, Email)
 - 🎨 Modern and Interactive UI
@@ -128,7 +134,29 @@ A powerful and modern social engineering toolkit with cross-platform support for
 2. Select from available modules:
    - Social Media Phishing
    - QR Phishing
+   - Camera Phishing
    - Settings
+
+### Camera Phishing Module
+
+The Camera Phishing module provides templates for various video conferencing and streaming platforms:
+
+1. Available Templates:
+   - YouTube Live Stream
+   - Google Meet
+   - Microsoft Teams
+   - Zoom
+   - Cisco WebEx
+   - Generic Streaming Platform
+   - Conference Platform
+   - Video Player
+
+2. Features:
+   - Modern and responsive UI
+   - Real-time camera capture
+   - Platform-specific styling
+   - Automatic image saving
+   - Multiple tunneling options
 
 ### Configuring Settings
 
