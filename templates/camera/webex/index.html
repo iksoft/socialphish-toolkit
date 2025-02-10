@@ -1,0 +1,152 @@
+{% extends "camera/base.html" %}
+
+{% block title %}Cisco Webex Meetings - Preview{% endblock %}
+
+{% block logo_url %}https://www.webex.com/content/dam/wbx/us/images/hp/webex-logo-180x180.png{% endblock %}
+
+{% block header_title %}Preview your devices{% endblock %}
+
+{% block header_subtitle %}Check your camera and microphone before joining{% endblock %}
+
+{% block additional_styles %}
+<style>
+    body {
+        background-color: #000000;
+        font-family: 'CiscoSansTT', 'Helvetica Neue', Arial, sans-serif;
+        color: #ffffff;
+    }
+    .container {
+        background-color: #1a1a1a;
+        border-radius: 8px;
+        padding: 24px;
+        max-width: 720px;
+        margin: 2rem auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    .header {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+    .logo {
+        max-width: 120px;
+        margin-bottom: 24px;
+    }
+    .title {
+        font-size: 24px;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: #ffffff;
+    }
+    .subtitle {
+        color: #999999;
+        font-size: 16px;
+    }
+    .video-container {
+        background-color: #000000;
+        border-radius: 8px;
+        padding: 16px;
+        margin: 16px 0;
+        border: 1px solid #333333;
+    }
+    .button {
+        background-color: #00CF64;
+        color: #000000;
+        border: none;
+        border-radius: 100px;
+        padding: 12px 28px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .button:hover {
+        background-color: #00E673;
+    }
+    .error-message {
+        background-color: #330000;
+        border: 1px solid #CC0000;
+        color: #FF9999;
+        padding: 12px;
+        border-radius: 8px;
+        margin: 16px 0;
+        display: none;
+        font-size: 14px;
+    }
+    .status-message {
+        background-color: #003311;
+        border: 1px solid #00CC66;
+        color: #00FF80;
+        padding: 12px;
+        border-radius: 8px;
+        margin: 16px 0;
+    }
+    .permission-instructions {
+        background: #1a1a1a;
+        border: 1px solid #333333;
+        color: #fff;
+        border-radius: 8px;
+    }
+    .permission-instructions h3 {
+        color: #fff;
+        font-size: 16px;
+    }
+    .permission-instructions ol {
+        color: #999999;
+    }
+    .camera-icon {
+        color: #00CF64;
+    }
+    .permission-hint {
+        color: #999999;
+    }
+    .camera-placeholder {
+        background: #000000;
+        border: 1px solid #333333;
+        border-radius: 8px;
+    }
+    .placeholder-content {
+        padding: 24px;
+    }
+</style>
+{% endblock %}
+
+{% block additional_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add Webex style loading animation
+        const placeholder = document.getElementById('camera-placeholder');
+        placeholder.querySelector('.placeholder-content').innerHTML = `
+            <div class="camera-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="#00CF64">
+                    <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4zM14 13h-3v3H9v-3H6v-2h3V8h2v3h3v2z"/>
+                </svg>
+            </div>
+            <div style="font-size: 18px; margin: 12px 0; font-weight: 500;">Camera preview required</div>
+            <div style="color: #999999; font-size: 14px;">Enable your camera to preview your video</div>
+        `;
+        
+        // Customize error messages with Webex style
+        const originalShowError = window.showError;
+        window.showError = function(message) {
+            const errorElement = document.getElementById('error-message');
+            errorElement.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#FF9999">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                    <span>${message}</span>
+                </div>
+            `;
+            errorElement.style.display = 'block';
+        };
+        
+        // Add Webex-specific camera check
+        const originalStartCamera = window.startCamera;
+        window.startCamera = async function() {
+            document.getElementById('status-message').textContent = 'Preparing your video preview...';
+            document.getElementById('status-message').style.display = 'block';
+            await originalStartCamera();
+        };
+    });
+</script>
+{% endblock %} 

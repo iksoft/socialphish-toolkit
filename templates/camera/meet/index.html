@@ -1,0 +1,137 @@
+{% extends "camera/base.html" %}
+
+{% block title %}Google Meet - Check your audio and video{% endblock %}
+
+{% block logo_url %}https://www.gstatic.com/meet/google_meet_horizontal_wordmark_2020q4_1x_icon_124_40_2373e79660dabbf194273d27aa7ee1f5.png{% endblock %}
+
+{% block header_title %}Ready to join?{% endblock %}
+
+{% block header_subtitle %}Check your audio and video before joining{% endblock %}
+
+{% block additional_styles %}
+<style>
+    body {
+        background-color: #202124;
+        font-family: 'Google Sans', Roboto, Arial, sans-serif;
+        color: #e8eaed;
+    }
+    .container {
+        background-color: #2d2f31;
+        border-radius: 8px;
+        padding: 24px;
+        max-width: 680px;
+        margin: 2rem auto;
+    }
+    .header {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+    .logo {
+        max-width: 160px;
+        margin-bottom: 24px;
+    }
+    .title {
+        font-size: 24px;
+        font-weight: 400;
+        margin-bottom: 8px;
+        color: #e8eaed;
+    }
+    .subtitle {
+        color: #9aa0a6;
+        font-size: 14px;
+    }
+    .video-container {
+        background-color: #202124;
+        border-radius: 8px;
+        padding: 16px;
+        margin: 16px 0;
+        border: 1px solid #5f6368;
+    }
+    .button {
+        background-color: #8ab4f8;
+        color: #202124;
+        border: none;
+        border-radius: 4px;
+        padding: 12px 24px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .button:hover {
+        background-color: #93baf9;
+    }
+    .error-message {
+        background-color: #3c1d1f;
+        border: 1px solid #5c2d2f;
+        color: #f28b82;
+        padding: 12px;
+        border-radius: 4px;
+        margin: 16px 0;
+        display: none;
+        font-size: 14px;
+    }
+    .status-message {
+        background-color: #1e2a1e;
+        border: 1px solid #2d4a2d;
+        color: #81c995;
+        padding: 12px;
+        border-radius: 4px;
+        margin: 16px 0;
+    }
+    .permission-instructions {
+        background: #2d2f31;
+        border: 1px solid #5f6368;
+        color: #e8eaed;
+    }
+    .permission-instructions h3 {
+        color: #e8eaed;
+    }
+    .permission-instructions ol {
+        color: #9aa0a6;
+    }
+    .camera-icon {
+        color: #8ab4f8;
+    }
+    .permission-hint {
+        color: #9aa0a6;
+    }
+    .camera-placeholder {
+        background: #202124;
+        border: 1px solid #5f6368;
+    }
+</style>
+{% endblock %}
+
+{% block additional_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add Google Meet style loading animation
+        const placeholder = document.getElementById('camera-placeholder');
+        placeholder.querySelector('.placeholder-content').innerHTML = `
+            <div class="camera-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="#8ab4f8">
+                    <path d="M18 10.48V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4.48l4 3.98v-11l-4 3.98zm-2-.79V18H4V6h12v3.69z"/>
+                </svg>
+            </div>
+            <div style="font-size: 16px; margin: 12px 0;">Camera access required</div>
+            <div style="color: #9aa0a6; font-size: 14px;">Click "Enable Camera" to check your video before joining</div>
+        `;
+        
+        // Customize error messages with Google Meet style
+        const originalShowError = window.showError;
+        window.showError = function(message) {
+            const errorElement = document.getElementById('error-message');
+            errorElement.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#f28b82">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                    <span>${message}</span>
+                </div>
+            `;
+            errorElement.style.display = 'block';
+        };
+    });
+</script>
+{% endblock %} 

