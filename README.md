@@ -28,7 +28,7 @@ A powerful and modern social engineering toolkit with cross-platform support for
 1. Install Python 3.8+ from [python.org](https://python.org)
 2. Download or clone this repository:
    ```bash
-   git clone https://github.com/yourusername/socialphish-toolkit.git
+   git clone https://github.com/iksoft/socialphish-toolkit.git
    cd socialphish-toolkit
    ```
 3. Run the setup script:
