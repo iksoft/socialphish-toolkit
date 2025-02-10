@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two-Factor Authentication</title>
+    <style>
+        .otp-container {
+            max-width: 400px;
+            margin: 40px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .otp-header {
+            margin-bottom: 30px;
+        }
+        .verification-text {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .user-email {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+        .instruction-text {
+            color: #666;
+            margin-top: 5px;
+        }
+        .otp-input {
+            width: 200px;
+            padding: 10px;
+            margin: 20px 0;
+            font-size: 16px;
+            text-align: center;
+        }
+        .submit-btn {
+            width: 200px;
+            padding: 10px;
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: #166fe5;
+        }
+    </style>
+</head>
+<body>
+    <div class="otp-container">
+        <div class="otp-header">
+            <h2>Two-Factor Authentication Required</h2>
+            {% if user_data.email %}
+            <p class="verification-text">We sent your code to:</p>
+            <p class="user-email">{{ user_data.email }}</p>
+            <p class="instruction-text">Please check your email and enter the code below to continue.</p>
+            {% endif %}
+        </div>
+        <form id="otpForm" method="POST" action="/verify?platform={{ platform }}">
+            <input type="text" name="otp" class="otp-input" placeholder="Enter code" required>
+            <button type="submit" class="submit-btn">Continue</button>
+        </form>
+    </div>
+    <script src="/static/js/script.js"></script>
+</body>
+</html> 

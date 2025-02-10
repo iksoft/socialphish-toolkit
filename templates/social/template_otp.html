@@ -1,0 +1,5 @@
+<div class="otp-header">
+    <h2>Two-Factor Authentication</h2>
+    {% if user_data.email %}
+    <p class="user-email">Enter the code sent to {{ user_data.email }}</p>
+    {% endif %} 

