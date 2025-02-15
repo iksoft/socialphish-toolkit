@@ -74,7 +74,7 @@ A powerful and modern social engineering toolkit with cross-platform support for
 
 5. Run this command to install all packages at once:
    ```bash
-   bash pip install "requests>=2.31.0" "beautifulsoup4>=4.12.0" "colorama>=0.4.6" "qrcode>=7.4.2" "Pillow>=10.0.0" "flask>=2.3.3" "python-dotenv>=1.0.0" "argparse>=1.4.0" "pyfiglet>=1.0.2" "rich>=13.5.2" "scapy>=2.5.0" "cryptography>=41.0.0" "validators>=0.22.0" "matplotlib>=3.8.0" "seaborn>=0.13.0" "psutil>=5.9.0"
+   pip install "requests>=2.31.0" "beautifulsoup4>=4.12.0" "colorama>=0.4.6" "qrcode>=7.4.2" "Pillow>=10.0.0" "flask>=2.3.3" "python-dotenv>=1.0.0" "argparse>=1.4.0" "pyfiglet>=1.0.2" "rich>=13.5.2" "scapy>=2.5.0" "cryptography>=41.0.0" "validators>=0.22.0" "matplotlib>=3.8.0" "seaborn>=0.13.0" "psutil>=5.9.0"
 ```
 6. Launch the toolkit:
    ```bash
